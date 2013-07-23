@@ -4,6 +4,8 @@
     <string name="app_name">GameOfFifteen</string>
     <string name="choose_picture">Choose picture</string>
     <string name="title_activity_choose_picture">ChoosePictureActivity</string>
-    <string name="action_settings">Settings</string>   
+    <string name="action_settings">Settings</string>
+    <string name="tabDefaultPictures">Pictures</string>
+    <string name="tabPhoneGallery">Gallery</string>   
 
 </resources>
