@@ -1,33 +1,48 @@
 package humaj.michal;
 
 import java.lang.ref.WeakReference;
-import android.app.Activity;
+
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
+import android.widget.Toast;
 
-public class ChoosePictureActivity extends Activity{
-	
-	//private Cursor mCursor;
-	//private int mColumnIndex;
+public class ChoosePictureActivity extends FragmentActivity
+	implements LoaderManager.LoaderCallbacks<Cursor>{	
 	
 	private Bitmap mPlaceHolderBitmap = null;
-	private ImageAdapter mAdapter;
+	private int mIdColumnIndex;
+	private int mDataColumnIndex;
+	private DefaultPicsAdapter mDefaultPicsAdapter;
+	private PhoneGalleryAdapter mPhoneGalleryAdapter;
+	private ContentResolver mContentResolver;
+	private Cursor mCursor;
+	private static final int URL_LOADER = 0;
+	private Context mContext;
 	
 	public static final Integer[] mThumbIDs = new Integer[]{
 		R.drawable.t001, R.drawable.t002, R.drawable.t003, R.drawable.t004, R.drawable.t230, 
@@ -81,9 +96,8 @@ public class ChoosePictureActivity extends Activity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		
-		super.onCreate(savedInstanceState);
-		mAdapter = new ImageAdapter(this);
-		setContentView(R.layout.activity_choose_picture);
+		super.onCreate(savedInstanceState);		
+		setContentView(R.layout.activity_choose_picture);		
 		
 		TabHost tabs = (TabHost) findViewById(R.id.tabhost);
 		tabs.setup();
@@ -96,23 +110,49 @@ public class ChoosePictureActivity extends Activity{
 		spec = tabs.newTabSpec("tag2");
 		spec.setContent(R.id.gvPhoneGallery);
 		spec.setIndicator(getString(R.string.tabPhoneGallery));
+		tabs.addTab(spec);		
+		
+		spec = tabs.newTabSpec("tag3");
+		spec.setContent(R.id.gvSymbols);
+		spec.setIndicator(getString(R.string.tabSymbols));
 		tabs.addTab(spec);
 		
 		GridView gvDefaultPictures = (GridView) findViewById(R.id.gvDefaultPictures);
-		//GridView gvPhoneGallery = (GridView) findViewById(R.id.gvPhoneGallery);
+		GridView gvPhoneGallery = (GridView) findViewById(R.id.gvPhoneGallery);
+		GridView gvSymbols = (GridView) findViewById(R.id.gvSymbols);
+		
+		gvDefaultPictures.setOnItemClickListener(new OnItemClickListener(){
+			
+			public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+				
+                Intent intent = new Intent(mContext, MainActivity.class);
+                intent.putExtra("CHOICE", MainActivity.DEFAULT_PICTURE);
+                intent.putExtra("PICTURE", position);             
+                startActivity(intent);  
+            }
+		});
+		
+		gvPhoneGallery.setOnItemClickListener(new OnItemClickListener(){
+			
+			public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+				
+                Intent intent = new Intent(mContext, MainActivity.class);     
+                intent.putExtra("CHOICE", MainActivity.PHONE_GALLERY);
+                intent.putExtra("PICTURE", mCursor.getString(mDataColumnIndex));                
+                startActivity(intent);                
+            }
+		});
 		
 		mPlaceHolderBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.placeholder);
-		gvDefaultPictures.setAdapter(mAdapter);
+		mContentResolver = getContentResolver();
+		mDefaultPicsAdapter = new DefaultPicsAdapter(this);
+		mPhoneGalleryAdapter = new PhoneGalleryAdapter(this, null, 0);
+		mContext = this;
 		
-		/*String[] projection = {MediaStore.Images.Thumbnails._ID};	
-		mCursor = getContentResolver().query(
-				  	MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,
-				  	projection,
-				  	null,
-				  	null,
-				  	null);		
-		mColumnIndex = mCursor.getColumnIndexOrThrow(MediaStore.Images.Thumbnails._ID);		
-		gvPhoneGallery.setAdapter(new PhoneGalleryAdapter(this));	*/	
+		gvDefaultPictures.setAdapter(mDefaultPicsAdapter);
+		gvPhoneGallery.setAdapter(mPhoneGalleryAdapter);
+		
+		getSupportLoaderManager().initLoader(URL_LOADER, null, this);		
 	}	
 	
 	public void loadBitmap(int resId, SquareImageView imageView) {
@@ -124,7 +164,7 @@ public class ChoosePictureActivity extends Activity{
 	        imageView.setImageDrawable(asyncDrawable);
 	        task.execute(resId);
 	    }
-	}	
+	}
 	
 	static class AsyncDrawable extends BitmapDrawable {
 		
@@ -142,7 +182,7 @@ public class ChoosePictureActivity extends Activity{
 	    }    
 	}	
 	
-	public static boolean cancelPotentialWork(int data, ImageView imageView) {
+	public static boolean cancelPotentialWork(int data, SquareImageView imageView) {
 		
 	    final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
 	    if (bitmapWorkerTask != null) {
@@ -159,7 +199,7 @@ public class ChoosePictureActivity extends Activity{
 	    return true;
 	}
 	
-	private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
+	private static BitmapWorkerTask getBitmapWorkerTask(SquareImageView imageView) {
 		
 		if (imageView != null) {
 			final Drawable drawable = imageView.getDrawable();
@@ -173,12 +213,12 @@ public class ChoosePictureActivity extends Activity{
 	
 	class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
 		
-	    private final WeakReference<SquareImageView> imageViewReference;
+	    private final WeakReference<SquareImageView> mImageViewReference;
 	    private int data = 0;
 
 	    public BitmapWorkerTask(SquareImageView imageView) {
 	        
-	        imageViewReference = new WeakReference<SquareImageView>(imageView);
+	        mImageViewReference = new WeakReference<SquareImageView>(imageView);
 	    }
 	   
 	    @Override
@@ -194,8 +234,8 @@ public class ChoosePictureActivity extends Activity{
 	    	 if (isCancelled()) {
 	             bitmap = null;
 	         }
-	         if (imageViewReference != null && bitmap != null) {
-	             final SquareImageView imageView = imageViewReference.get();
+	         if (mImageViewReference != null && bitmap != null) {
+	             final SquareImageView imageView = mImageViewReference.get();
 	             final BitmapWorkerTask bitmapWorkerTask =
 	                     getBitmapWorkerTask(imageView);
 	             if (this == bitmapWorkerTask && imageView != null) {
@@ -205,11 +245,11 @@ public class ChoosePictureActivity extends Activity{
 	    }
 	}
 	
-	private class ImageAdapter extends BaseAdapter {
+	private class DefaultPicsAdapter extends BaseAdapter {
 
 		private Context context;		
 		
-		public ImageAdapter(Context c) {
+		public DefaultPicsAdapter(Context c) {
 			super();
 			this.context = c;
 		}
@@ -246,53 +286,167 @@ public class ChoosePictureActivity extends Activity{
 	        return imageView;
 		}
 	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int loaderID, Bundle arg1) {
+		
+		switch (loaderID) {
+        case URL_LOADER:
+        	
+        	String[] projection = {MediaStore.Images.Media._ID,
+        			MediaStore.Images.Media.DATA};
+        	
+            return new CursorLoader(
+            		this,   
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    projection,     
+                    null,            
+                    null,            
+                    null);
+            
+        default:            
+            return null;
+		}
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> arg0, Cursor cursor) {
+		
+		mIdColumnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+		mDataColumnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+		mPhoneGalleryAdapter.changeCursor(cursor);
+		mCursor = cursor;
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> arg0) {
+		
+		mPhoneGalleryAdapter.changeCursor(null);
+	}
 	
-	/*private class PhoneGalleryAdapter extends BaseAdapter{
+	class GalleryWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
 		
-		private Context mContext;
+	    private final WeakReference<SquareImageView> imageViewReference;
+	    private final Options mOptions;
+	    private ContentResolver mContentResolver;
+	    private int data = 0;
+
+	    public GalleryWorkerTask(SquareImageView imageView, ContentResolver cr) {
+	        
+	        imageViewReference = new WeakReference<SquareImageView>(imageView);
+	        mContentResolver = cr;
+	        mOptions = new Options();
+	    }
+	    
+	    @Override
+	    protected Bitmap doInBackground(Integer... params) {
+	        data = params[0];
+	        return MediaStore.Images.Thumbnails.getThumbnail(
+	        			mContentResolver,
+	        			data,
+	        			MediaStore.Images.Thumbnails.MICRO_KIND,
+	        			mOptions);
+	    }
+	    
+	    @Override
+	    protected void onPostExecute(Bitmap bitmap) {
+	    	
+	        if (isCancelled()) {
+	            bitmap = null;
+	        }
+
+	        if (imageViewReference != null && bitmap != null) {
+	            final SquareImageView imageView = imageViewReference.get();
+	            final GalleryWorkerTask galleryWorkerTask =
+	                    getGalleryWorkerTask(imageView);
+	            if (this == galleryWorkerTask && imageView != null) {
+	                imageView.setImageBitmap(bitmap);	                
+	            }
+	        }
+	    }
+	}
+	
+	static class AsyncGalleryDrawable extends BitmapDrawable {
 		
-		public PhoneGalleryAdapter(Context c){
+	    private final WeakReference<GalleryWorkerTask> galleryWorkerTaskReference;
+
+	    public AsyncGalleryDrawable(Resources res, Bitmap bitmap,
+	            GalleryWorkerTask galleryWorkerTask) {
+	        super(res, bitmap);
+	        galleryWorkerTaskReference =
+	            new WeakReference<GalleryWorkerTask>(galleryWorkerTask);
+	    }
+
+	    public GalleryWorkerTask getGalleryWorkerTask() {
+	        return galleryWorkerTaskReference.get();
+	    }    
+	}
+	
+	public void loadGalleryBitmap(int imageID, SquareImageView imageView) {
+		
+		if (cancelPotentialGalleryWork(imageID, imageView)) {
+			final GalleryWorkerTask task = new GalleryWorkerTask(imageView, mContentResolver);        
+	        final AsyncGalleryDrawable asyncDrawable =
+	                new AsyncGalleryDrawable(getResources(), mPlaceHolderBitmap, task);
+	        imageView.setImageDrawable(asyncDrawable);
+	        task.execute(imageID);
+	    }
+	}
+	
+	public static boolean cancelPotentialGalleryWork(int data, SquareImageView imageView) {
+	    final GalleryWorkerTask galleryWorkerTask = getGalleryWorkerTask(imageView);
+
+	    if (galleryWorkerTask != null) {
+	        final int bitmapData = galleryWorkerTask.data;
+	        if (bitmapData != data) {
+	            // Cancel previous task
+	            galleryWorkerTask.cancel(true);
+	        } else {
+	            // The same work is already in progress
+	            return false;
+	        }
+	    }
+	    // No task associated with the ImageView, or an existing task was cancelled
+	    return true;
+	}
+	
+	private static GalleryWorkerTask getGalleryWorkerTask(SquareImageView imageView) {
+		   if (imageView != null) {
+		       final Drawable drawable = imageView.getDrawable();
+		       if (drawable instanceof AsyncGalleryDrawable) {
+		           final AsyncGalleryDrawable asyncDrawable = (AsyncGalleryDrawable) drawable;
+		           return asyncDrawable.getGalleryWorkerTask();
+		       }
+		    }
+		    return null;
+		}
+	
+	private class PhoneGalleryAdapter extends CursorAdapter{
+
+		public PhoneGalleryAdapter(Context context, Cursor c, int flags) {
 			
-			mContext = c;
+			super(context, c, flags);
+			
 		}
 
 		@Override
-		public int getCount() {
+		public void bindView(View view, Context context, Cursor cursor) {
 			
-			return mCursor.getCount();
+			SquareImageView imageView = (SquareImageView) view;	
+			int imageID = cursor.getInt(mIdColumnIndex);
+			loadGalleryBitmap(imageID, imageView);					
 		}
 
 		@Override
-		public Object getItem(int position) {
+		public View newView(Context context, Cursor cursor, ViewGroup arg2) {
 			
-			return position;
+			SquareImageView imageView;	        
+	        imageView = new SquareImageView(context);	            
+	        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);		                
+	        return imageView;
 		}
-
-		@Override
-		public long getItemId(int position) {
 			
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			
-			SquareImageView imageView;
-			if (convertView == null){
-				imageView = new SquareImageView(mContext);
-				mCursor.moveToPosition(position);
-				int imageId = mCursor.getInt(mColumnIndex);
-				Uri uri = Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,
-											   "" + imageId);
-				imageView.setImageURI(uri);
-				imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);								
-			} else {
-				imageView = (SquareImageView) convertView;
-			}
-			
-			return imageView;
-		}	
-	}*/
+	}
 }
 
 

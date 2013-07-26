@@ -7,5 +7,6 @@
     <string name="action_settings">Settings</string>
     <string name="tabDefaultPictures">Pictures</string>
     <string name="tabPhoneGallery">Gallery</string>   
+    <string name="tabSymbols">Symbols</string>
 
 </resources>
