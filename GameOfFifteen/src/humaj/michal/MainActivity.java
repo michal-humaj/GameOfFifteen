@@ -16,6 +16,7 @@ public class MainActivity extends Activity {
 	public static final int PHONE_GALLERY = 1;	
 	public Bitmap mGameBitmap;
 	private SquareImageView iv;
+	private int mDifficulty;
 	private Random random = new Random(System.currentTimeMillis());
 	public static final Integer[] mPictureIDs = new Integer[]{
 		R.drawable.p001, R.drawable.p002, R.drawable.p003, R.drawable.p004, R.drawable.p020, 
@@ -33,7 +34,8 @@ public class MainActivity extends Activity {
 		iv = (SquareImageView) findViewById(R.id.iv);
 		int index = random.nextInt(mPictureIDs.length);
 		mGameBitmap = BitmapFactory.decodeResource(getResources(), mPictureIDs[index]);
-		iv.setImageBitmap(mGameBitmap);		
+		iv.setImageBitmap(mGameBitmap);	
+		mDifficulty = random.nextInt(4) + 3;
 	}
 
 	public void onChoosePicture(View v) {
