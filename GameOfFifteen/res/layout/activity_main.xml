@@ -65,7 +65,7 @@
         android:layout_toRightOf="@id/btnChoosePicture"
         android:layout_below="@id/btnPlay" />
      
-     <humaj.michal.SquareImageView
+     <humaj.michal.util.SquareImageView
          android:id="@+id/iv"
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
