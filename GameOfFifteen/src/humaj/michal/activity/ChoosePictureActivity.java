@@ -1,239 +1,215 @@
 package humaj.michal.activity;
 
 import humaj.michal.R;
-import humaj.michal.uilogic.DefaultPicsAdapter;
-import humaj.michal.uilogic.PhoneGalleryAdapter;
-import humaj.michal.util.ImageUtils;
+import humaj.michal.uilogic.GalleryLoader;
+import humaj.michal.uilogic.GalleryMessageObject;
+import humaj.michal.uilogic.PictureLoader;
 import humaj.michal.util.SquareImageView;
-
-import java.lang.ref.WeakReference;
-
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.view.Display;
+import android.support.v4.util.LruCache;
+import android.support.v4.widget.CursorAdapter;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TabHost;
+import android.widget.Toast;
 import android.widget.TabHost.TabSpec;
 
 public class ChoosePictureActivity extends FragmentActivity implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 
 	public static final int CURSOR_LOADER = 0;
+	private static final int THUMB_WIDTH_IN_DP = 90;
 
-	private Context mContext;
+	private MyHandler mHandler;
+
+	private int mThumbWidth;
+	private Bitmap mPlaceHolderBitmap = null;
 
 	private Cursor mCursor;
 	private int mDataColumnIndex;
 
-	private DefaultPicsAdapter mDefaultPicsAdapter;
-	private PhoneGalleryAdapter mPhoneGalleryAdapter;
+	private GalleryAdapter mGalleryAdapter;
+	private GalleryLoader mGalleryLoader;
+	private PictureLoader mPictureLoader;
 
-	private Bitmap mPlaceHolderBitmap = null;
-	private int mThumbWidth;
+	private LruCache<String, Bitmap> mGalleryCache;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setUpViews();
-		mContext = this;
+		setContentView(R.layout.activity_choose_picture);
+		
+		Context context = getApplicationContext();
+		CharSequence text = "OnCreate CHOOSE";
+		int duration = Toast.LENGTH_SHORT;
+
+		Toast toast = Toast.makeText(context, text, duration);
+		toast.show();
+		
+		mHandler = new MyHandler(Looper.getMainLooper());
+		getSupportLoaderManager().initLoader(CURSOR_LOADER, null, this);
+		setupTabs();
+		setThumbWidth();
 		mPlaceHolderBitmap = BitmapFactory.decodeResource(getResources(),
 				R.drawable.placeholder);
-		Display display = getWindowManager().getDefaultDisplay();
-		mThumbWidth = display.getWidth() / 4;
-		getSupportLoaderManager().initLoader(CURSOR_LOADER, null, this);
+		setupCache();
+		setupGridViews();
 	}
 
-	public void loadBitmap(int resId, SquareImageView imageView) {
-		if (cancelPotentialWork(resId, imageView)) {
-			final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-			final AsyncDrawable asyncDrawable = new AsyncDrawable(
-					getResources(), mPlaceHolderBitmap, task);
-			imageView.setImageDrawable(asyncDrawable);
-			task.execute(resId);
-		}
+	@Override
+	protected void onStop() {
+		mGalleryLoader.kill();
+		mPictureLoader.kill();
+		
+		Context context = getApplicationContext();
+		CharSequence text = "OnStop CHOOSE";
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = Toast.makeText(context, text, duration);
+		toast.show();
+		super.onStop();
 	}
 
-	public void loadGalleryBitmap(String fileName, SquareImageView imageView) {
-		if (cancelPotentialGalleryWork(fileName, imageView)) {
-			final GalleryWorkerTask task = new GalleryWorkerTask(imageView);
-			final AsyncGalleryDrawable asyncGalleryDrawable = new AsyncGalleryDrawable(
-					getResources(), mPlaceHolderBitmap, task);
-			imageView.setImageDrawable(asyncGalleryDrawable);
-			task.execute(fileName);
-		}
+	@Override
+	protected void onStart() {
+		mGalleryLoader = new GalleryLoader(this, mHandler, mThumbWidth);
+		mPictureLoader = new PictureLoader(getResources(), mHandler);
+		mGalleryLoader.start();
+		mPictureLoader.start();
+		
+		Context context = getApplicationContext();
+		CharSequence text = "OnStart CHOOSE";
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = Toast.makeText(context, text, duration);
+		toast.show();
+		super.onStart();
+	}
+	
+	@Override
+	protected void onRestart() {
+		Context context = getApplicationContext();
+		CharSequence text = "OnRestart CHOOSE";
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = Toast.makeText(context, text, duration);
+		toast.show();
+		super.onRestart();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		Context context = getApplicationContext();
+		CharSequence text = "OnDestroy CHOOSE";
+		int duration = Toast.LENGTH_SHORT;
+		Toast toast = Toast.makeText(context, text, duration);
+		toast.show();
+		super.onDestroy();
 	}
 
-	static class AsyncDrawable extends BitmapDrawable {
-		private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
+	public static class MyHandler extends Handler {
 
-		public AsyncDrawable(Resources res, Bitmap bitmap,
-				BitmapWorkerTask bitmapWorkerTask) {
-			super(res, bitmap);
-			bitmapWorkerTaskReference = new WeakReference<BitmapWorkerTask>(
-					bitmapWorkerTask);
+		public MyHandler(Looper mainLooper) {
+			super(mainLooper);
 		}
 
-		public BitmapWorkerTask getBitmapWorkerTask() {
-			return bitmapWorkerTaskReference.get();
-		}
-	}
-
-	static class AsyncGalleryDrawable extends BitmapDrawable {
-		private final WeakReference<GalleryWorkerTask> galleryWorkerTaskReference;
-
-		public AsyncGalleryDrawable(Resources res, Bitmap bitmap,
-				GalleryWorkerTask galleryWorkerTask) {
-			super(res, bitmap);
-			galleryWorkerTaskReference = new WeakReference<GalleryWorkerTask>(
-					galleryWorkerTask);
-		}
-
-		public GalleryWorkerTask getGalleryWorkerTask() {
-			return galleryWorkerTaskReference.get();
-		}
-	}
-
-	public static boolean cancelPotentialWork(int data,
-			SquareImageView imageView) {
-		final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-
-		if (bitmapWorkerTask != null) {
-			final int bitmapData = bitmapWorkerTask.data;
-			if (bitmapData != data) {
-				// Cancel previous task
-				bitmapWorkerTask.cancel(true);
-			} else {
-				// The same work is already in progress
-				return false;
-			}
-		}
-		// No task associated with the ImageView, or an existing task was
-		// cancelled
-		return true;
-	}
-
-	public static boolean cancelPotentialGalleryWork(String data,
-			SquareImageView imageView) {
-		final GalleryWorkerTask galleryWorkerTask = getGalleryWorkerTask(imageView);
-
-		if (galleryWorkerTask != null) {
-			final String bitmapData = galleryWorkerTask.data;
-			if (!bitmapData.equals(data)) {
-				// Cancel previous task
-				galleryWorkerTask.cancel(true);
-			} else {
-				// The same work is already in progress
-				return false;
-			}
-		}
-		// No task associated with the ImageView, or an existing task was
-		// cancelled
-		return true;
-	}
-
-	private static BitmapWorkerTask getBitmapWorkerTask(
-			SquareImageView imageView) {
-		if (imageView != null) {
-			final Drawable drawable = imageView.getDrawable();
-			if (drawable instanceof AsyncDrawable) {
-				final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
-				return asyncDrawable.getBitmapWorkerTask();
-			}
-		}
-		return null;
-	}
-
-	private static GalleryWorkerTask getGalleryWorkerTask(
-			SquareImageView imageView) {
-		if (imageView != null) {
-			final Drawable drawable = imageView.getDrawable();
-			if (drawable instanceof AsyncGalleryDrawable) {
-				final AsyncGalleryDrawable asyncGalleryDrawable = (AsyncGalleryDrawable) drawable;
-				return asyncGalleryDrawable.getGalleryWorkerTask();
-			}
-		}
-		return null;
-	}
-
-	class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
-		private final WeakReference<SquareImageView> imageViewReference;
-		private int data = 0;
-
-		public BitmapWorkerTask(SquareImageView imageView) {
-			// Use a WeakReference to ensure the ImageView can be garbage
-			// collected
-			imageViewReference = new WeakReference<SquareImageView>(imageView);
-		}
-
-		// Decode image in background.
 		@Override
-		protected Bitmap doInBackground(Integer... params) {
-			data = params[0];
-			return ImageUtils.decodeSampledBitmapFromResource(getResources(),
-					data, mThumbWidth, mThumbWidth);
-		}
-
-		// Once complete, see if ImageView is still around and set bitmap.
-		protected void onPostExecute(Bitmap bitmap) {
-			if (isCancelled()) {
-				bitmap = null;
-			}
-			if (imageViewReference != null && bitmap != null) {
-				final SquareImageView imageView = imageViewReference.get();
-				final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-				if (this == bitmapWorkerTask && imageView != null) {
-					imageView.setImageBitmap(bitmap);
-				}
-			}
+		public void handleMessage(Message message) {
+			GalleryMessageObject holder = (GalleryMessageObject) message.obj;
+			holder.imageView.setImageBitmap(holder.bitmap);
 		}
 	}
 
-	class GalleryWorkerTask extends AsyncTask<String, Void, Bitmap> {
-		private final WeakReference<SquareImageView> imageViewReference;
-		private String data = "";
+	class PictureAdapter extends BaseAdapter {
 
-		public GalleryWorkerTask(SquareImageView imageView) {
-			// Use a WeakReference to ensure the ImageView can be garbage
-			// collected
-			imageViewReference = new WeakReference<SquareImageView>(imageView);
+		public final Integer[] thumbIDs = { R.drawable.t001, R.drawable.t002,
+				R.drawable.t003, R.drawable.t004, R.drawable.t005,
+				R.drawable.t006, R.drawable.t007, R.drawable.t008,
+				R.drawable.t009, R.drawable.t010, R.drawable.t011,
+				R.drawable.t012, R.drawable.t013, R.drawable.t014,
+				R.drawable.t015, R.drawable.t016, R.drawable.t017,
+				R.drawable.t018, R.drawable.t019, R.drawable.t020 };
+
+		public PictureAdapter() {
 		}
 
-		// Decode image in background.
 		@Override
-		protected Bitmap doInBackground(String... params) {
-			data = params[0];
-			return ImageUtils.decodeSampledBitmapFromFile(data, mThumbWidth,
-					mThumbWidth);
+		public int getCount() {
+			return thumbIDs.length;
 		}
 
-		// Once complete, see if ImageView is still around and set bitmap.
-		protected void onPostExecute(Bitmap bitmap) {
-			if (isCancelled()) {
-				bitmap = null;
+		@Override
+		public Object getItem(int position) {
+			return thumbIDs[position];
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup container) {
+			SquareImageView imageView;
+			if (convertView == null) {
+				imageView = new SquareImageView(getApplicationContext());
+				imageView.setScaleType(SquareImageView.ScaleType.CENTER_CROP);
+			} else {
+				imageView = (SquareImageView) convertView;
 			}
-			if (imageViewReference != null && bitmap != null) {
-				final SquareImageView imageView = imageViewReference.get();
-				final GalleryWorkerTask galleryWorkerTask = getGalleryWorkerTask(imageView);
-				if (this == galleryWorkerTask && imageView != null) {
-					imageView.setImageBitmap(bitmap);
+			imageView.setImageBitmap(mPlaceHolderBitmap);
+			mPictureLoader.add(imageView, thumbIDs[position]);
+			synchronized (mPictureLoader) {
+				mPictureLoader.notify();
+			}
+			return imageView;
+		}
+	}
+
+	class GalleryAdapter extends CursorAdapter {
+
+		public GalleryAdapter(Context context, Cursor c, int flags) {
+			super(context, c, flags);
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor cursor) {
+			SquareImageView imageView = (SquareImageView) view;
+			imageView.setImageBitmap(mPlaceHolderBitmap);
+			String fileName = cursor.getString(mDataColumnIndex);
+			Bitmap bitmap = null;// getBitmapFromMemCache(fileName);
+			if (bitmap == null) {
+				mGalleryLoader.add(imageView, fileName);
+				synchronized (mGalleryLoader) {
+					mGalleryLoader.notify();
 				}
+			} else {
+				imageView.setImageBitmap(bitmap);
+				mGalleryLoader.remove(imageView);
 			}
+
+		}
+
+		@Override
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			SquareImageView imageView = new SquareImageView(context);
+			imageView.setScaleType(SquareImageView.ScaleType.CENTER_CROP);
+			return imageView;
 		}
 	}
 
@@ -255,22 +231,26 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		mDataColumnIndex = cursor
 				.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-		mPhoneGalleryAdapter.changeCursor(cursor);
+		mGalleryAdapter.changeCursor(cursor);
 		mCursor = cursor;
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
-		mPhoneGalleryAdapter.changeCursor(null);
+		mGalleryAdapter.changeCursor(null);
 	}
 
-	public int getDataColumnIndex() {
-		return mDataColumnIndex;
+	/*public synchronized void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+		if (getBitmapFromMemCache(key) == null) {
+			mGalleryCache.put(key, bitmap);
+		}
 	}
 
-	private void setUpViews() {
-		setContentView(R.layout.activity_choose_picture);
+	public synchronized Bitmap getBitmapFromMemCache(String key) {
+		return mGalleryCache.get(key);
+	}*/
 
+	private void setupTabs() {
 		TabHost tabs = (TabHost) findViewById(R.id.tabhost);
 		tabs.setup();
 
@@ -288,34 +268,73 @@ public class ChoosePictureActivity extends FragmentActivity implements
 		spec.setContent(R.id.gvSymbols);
 		spec.setIndicator(getString(R.string.tabSymbols));
 		tabs.addTab(spec);
+	}
 
-		GridView gvDefaultPictures = (GridView) findViewById(R.id.gvDefaultPictures);
-		GridView gvPhoneGallery = (GridView) findViewById(R.id.gvPhoneGallery);
+	private void setupGridViews() {
+		GridView gvPictures = (GridView) findViewById(R.id.gvDefaultPictures);
+		GridView gvGallery = (GridView) findViewById(R.id.gvPhoneGallery);
 		GridView gvSymbols = (GridView) findViewById(R.id.gvSymbols);
 
-		gvDefaultPictures.setOnItemClickListener(new OnItemClickListener() {
+		gvPictures.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View v,
 					int position, long id) {
-				Intent intent = new Intent(mContext, MainActivity.class);
+				Intent intent = new Intent(getApplicationContext(),
+						MainActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra("CHOICE", MainActivity.DEFAULT_PICTURE);
 				intent.putExtra("PICTURE", position);
 				startActivity(intent);
 			}
 		});
 
-		gvPhoneGallery.setOnItemClickListener(new OnItemClickListener() {
+		gvGallery.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View v,
 					int position, long id) {
-				Intent intent = new Intent(mContext, MainActivity.class);
+				Intent intent = new Intent(getApplicationContext(),
+						MainActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra("CHOICE", MainActivity.PHONE_GALLERY);
 				intent.putExtra("PICTURE", mCursor.getString(mDataColumnIndex));
 				startActivity(intent);
 			}
 		});
-		mDefaultPicsAdapter = new DefaultPicsAdapter(this);
-		mPhoneGalleryAdapter = new PhoneGalleryAdapter(this, null, 0);
-		gvDefaultPictures.setAdapter(mDefaultPicsAdapter);
-		gvPhoneGallery.setAdapter(mPhoneGalleryAdapter);
+
+		mGalleryAdapter = new GalleryAdapter(this, null, 0);
+		gvGallery.setAdapter(mGalleryAdapter);
+		gvPictures.setAdapter(new PictureAdapter());
 	}
 
+	private void setThumbWidth() {
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		switch (metrics.densityDpi) {
+		case DisplayMetrics.DENSITY_LOW:
+			mThumbWidth = (int) (0.75 * THUMB_WIDTH_IN_DP);
+			break;
+		case DisplayMetrics.DENSITY_MEDIUM:
+			mThumbWidth = (int) (1.0 * THUMB_WIDTH_IN_DP);
+			break;
+		case DisplayMetrics.DENSITY_HIGH:
+			mThumbWidth = (int) (1.5 * THUMB_WIDTH_IN_DP);
+			break;
+		case DisplayMetrics.DENSITY_XHIGH:
+			mThumbWidth = (int) (2.0 * THUMB_WIDTH_IN_DP);
+			break;
+		case DisplayMetrics.DENSITY_XXHIGH:
+			mThumbWidth = (int) (3.0 * THUMB_WIDTH_IN_DP);
+			break;
+		}
+	}
+
+	private void setupCache() {
+		final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+		final int cacheSize = maxMemory / 8;
+		mGalleryCache = new LruCache<String, Bitmap>(cacheSize) {
+			@Override
+			protected int sizeOf(String key, Bitmap bitmap) {
+				long byteCount = bitmap.getRowBytes() * bitmap.getHeight();
+				return (int) (byteCount / 1024);
+			}
+		};
+	}
 }

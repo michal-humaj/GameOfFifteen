@@ -58,6 +58,8 @@ public class ImageUtils {
 
 	    // Decode bitmap with inSampleSize set
 	    options.inJustDecodeBounds = false;
+	    options.inPurgeable = true;
+	    options.inInputShareable = true;
 	    return BitmapFactory.decodeFile(fileName, options);
 	}
 }

@@ -1,18 +1,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"         
-    tools:context=".MainActivity"
-    android:background="@drawable/bg_repeat">
-
-    <Button
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_repeat"
+    tools:context=".MainActivity" >
+    
+    <ImageButton
         android:id="@+id/btn3x3"
         android:layout_width="40dp"
         android:layout_height="40dp"        
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp" />
     
-    <Button
+    <ImageButton
         android:id="@+id/btn4x4"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -20,7 +20,7 @@
         android:layout_marginTop="8dp" 
         android:layout_toRightOf="@id/btn3x3"/>
         
-    <Button
+    <ImageButton
         android:id="@+id/btn5x5"
         android:layout_width="40dp"
         android:layout_height="40dp"        
@@ -28,49 +28,49 @@
         android:layout_marginLeft="8dp"
         android:layout_below="@id/btn3x3" />
     
-     <Button
+     <ImageButton
         android:id="@+id/btn6x6"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:layout_toRightOf="@id/btn5x5"
-        android:layout_below="@id/btn4x4" />
-     
-     <Button
+        android:layout_below="@id/btn4x4" />    
+
+    <Button
         android:id="@+id/btnChoosePicture"
-        android:onClick="onChoosePicture"
         android:layout_width="88dp"
         android:layout_height="88dp"
-        android:layout_marginLeft="16dp"        
+        android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
-        android:layout_toRightOf="@id/btn4x4" />
-     
-     <Button
+        android:layout_toRightOf="@id/btn4x4"
+        android:onClick="onChoosePicture" />
+
+    <Button
         android:id="@+id/btnPlay"
         android:layout_width="fill_parent"
         android:layout_height="40dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginRight="8dp"       
         android:layout_toRightOf="@id/btnChoosePicture" />
-     
-     <Button
+
+    <Button
         android:id="@+id/btnHighscore"
         android:layout_width="fill_parent"
         android:layout_height="40dp"
+        android:layout_below="@id/btnPlay"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
         android:layout_marginRight="8dp"
-        android:layout_toRightOf="@id/btnChoosePicture"
-        android:layout_below="@id/btnPlay" />
-     
-     <humaj.michal.util.SquareImageView
-         android:id="@+id/iv"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content"
-         android:layout_below="@id/btn5x5"
-         android:layout_marginTop="8dp"
-         android:scaleType="centerCrop" />
+        android:layout_marginTop="8dp"
+        android:layout_toRightOf="@id/btnChoosePicture" />
+
+    <humaj.michal.util.SquareImageView
+        android:id="@+id/iv"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn5x5"
+        android:layout_marginTop="8dp"
+        android:scaleType="centerCrop" />
 
 </RelativeLayout>
