@@ -36,9 +36,11 @@ public class ChoosePictureActivity extends FragmentActivity implements
 
 	public static final int CURSOR_LOADER = 0;
 	private static final int THUMB_WIDTH_IN_DP = 90;
+	
+	private int mDifficulty;
 
 	private MyHandler mHandler;
-
+	
 	private int mThumbWidth;
 	private Bitmap mPlaceHolderBitmap = null;
 
@@ -55,6 +57,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_choose_picture);
+		mDifficulty = getIntent().getIntExtra("DIFFICULTY", -1);
 		mHandler = new MyHandler(Looper.getMainLooper());
 		getSupportLoaderManager().initLoader(CURSOR_LOADER, null, this);
 		setupTabs();
@@ -80,7 +83,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 		mPictureLoader.start();
 		super.onStart();
 	}
-
+	
 	public static class MyHandler extends Handler {
 
 		public MyHandler(Looper mainLooper) {
@@ -148,11 +151,11 @@ public class ChoosePictureActivity extends FragmentActivity implements
 
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
-			SquareImageView imageView = (SquareImageView) view;
-			imageView.setImageBitmap(mPlaceHolderBitmap);
+			SquareImageView imageView = (SquareImageView) view;			
 			String fileName = cursor.getString(mDataColumnIndex);
 			Bitmap bitmap = getBitmapFromMemCache(fileName);
 			if (bitmap == null) {
+				imageView.setImageBitmap(mPlaceHolderBitmap);
 				mGalleryLoader.add(imageView, fileName);
 				synchronized (mGalleryLoader) {
 					mGalleryLoader.notify();
@@ -161,7 +164,6 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				imageView.setImageBitmap(bitmap);
 				mGalleryLoader.remove(imageView);
 			}
-
 		}
 
 		@Override
@@ -277,6 +279,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra("CHOICE", MainActivity.DEFAULT_PICTURE);
 				intent.putExtra("PICTURE", position);
+				intent.putExtra("DIFFICULTY", mDifficulty);
 				startActivity(intent);
 			}
 		});
@@ -288,6 +291,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra("CHOICE", MainActivity.PHONE_GALLERY);
 				intent.putExtra("PICTURE", mCursor.getString(mDataColumnIndex));
+				intent.putExtra("DIFFICULTY", mDifficulty);
 				startActivity(intent);
 			}
 		});		
@@ -299,6 +303,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra("CHOICE", MainActivity.SYMBOL);
 				intent.putExtra("PICTURE", position);
+				intent.putExtra("DIFFICULTY", mDifficulty);
 				startActivity(intent);
 			}
 		});
