@@ -29,7 +29,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TabHost;
-import android.widget.Toast;
 import android.widget.TabHost.TabSpec;
 
 public class ChoosePictureActivity extends FragmentActivity implements
@@ -56,14 +55,6 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_choose_picture);
-		
-		Context context = getApplicationContext();
-		CharSequence text = "OnCreate CHOOSE";
-		int duration = Toast.LENGTH_SHORT;
-
-		Toast toast = Toast.makeText(context, text, duration);
-		toast.show();
-		
 		mHandler = new MyHandler(Looper.getMainLooper());
 		getSupportLoaderManager().initLoader(CURSOR_LOADER, null, this);
 		setupTabs();
@@ -78,12 +69,6 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	protected void onStop() {
 		mGalleryLoader.kill();
 		mPictureLoader.kill();
-		
-		Context context = getApplicationContext();
-		CharSequence text = "OnStop CHOOSE";
-		int duration = Toast.LENGTH_SHORT;
-		Toast toast = Toast.makeText(context, text, duration);
-		toast.show();
 		super.onStop();
 	}
 
@@ -93,33 +78,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 		mPictureLoader = new PictureLoader(getResources(), mHandler);
 		mGalleryLoader.start();
 		mPictureLoader.start();
-		
-		Context context = getApplicationContext();
-		CharSequence text = "OnStart CHOOSE";
-		int duration = Toast.LENGTH_SHORT;
-		Toast toast = Toast.makeText(context, text, duration);
-		toast.show();
 		super.onStart();
-	}
-	
-	@Override
-	protected void onRestart() {
-		Context context = getApplicationContext();
-		CharSequence text = "OnRestart CHOOSE";
-		int duration = Toast.LENGTH_SHORT;
-		Toast toast = Toast.makeText(context, text, duration);
-		toast.show();
-		super.onRestart();
-	}
-	
-	@Override
-	protected void onDestroy() {
-		Context context = getApplicationContext();
-		CharSequence text = "OnDestroy CHOOSE";
-		int duration = Toast.LENGTH_SHORT;
-		Toast toast = Toast.makeText(context, text, duration);
-		toast.show();
-		super.onDestroy();
 	}
 
 	public static class MyHandler extends Handler {
@@ -137,7 +96,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 
 	class PictureAdapter extends BaseAdapter {
 
-		public final Integer[] thumbIDs = { R.drawable.t001, R.drawable.t002,
+		private final Integer[] thumbIDs = { R.drawable.t001, R.drawable.t002,
 				R.drawable.t003, R.drawable.t004, R.drawable.t005,
 				R.drawable.t006, R.drawable.t007, R.drawable.t008,
 				R.drawable.t009, R.drawable.t010, R.drawable.t011,
@@ -192,7 +151,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 			SquareImageView imageView = (SquareImageView) view;
 			imageView.setImageBitmap(mPlaceHolderBitmap);
 			String fileName = cursor.getString(mDataColumnIndex);
-			Bitmap bitmap = null;// getBitmapFromMemCache(fileName);
+			Bitmap bitmap = getBitmapFromMemCache(fileName);
 			if (bitmap == null) {
 				mGalleryLoader.add(imageView, fileName);
 				synchronized (mGalleryLoader) {
@@ -209,6 +168,42 @@ public class ChoosePictureActivity extends FragmentActivity implements
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
 			SquareImageView imageView = new SquareImageView(context);
 			imageView.setScaleType(SquareImageView.ScaleType.CENTER_CROP);
+			return imageView;
+		}
+	}
+
+	class SymbolAdapter extends BaseAdapter {
+
+		private final Integer[] thumbIDs = { R.drawable.st01, R.drawable.st02 };
+
+		public SymbolAdapter() {
+		}
+
+		@Override
+		public int getCount() {
+			return thumbIDs.length;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return thumbIDs[position];
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup container) {
+			SquareImageView imageView;
+			if (convertView == null) {
+				imageView = new SquareImageView(getApplicationContext());
+				imageView.setScaleType(SquareImageView.ScaleType.CENTER_CROP);
+			} else {
+				imageView = (SquareImageView) convertView;
+			}
+			imageView.setImageResource(thumbIDs[position]);			
 			return imageView;
 		}
 	}
@@ -240,7 +235,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 		mGalleryAdapter.changeCursor(null);
 	}
 
-	/*public synchronized void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+	public synchronized void addBitmapToMemoryCache(String key, Bitmap bitmap) {
 		if (getBitmapFromMemCache(key) == null) {
 			mGalleryCache.put(key, bitmap);
 		}
@@ -248,7 +243,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 
 	public synchronized Bitmap getBitmapFromMemCache(String key) {
 		return mGalleryCache.get(key);
-	}*/
+	}
 
 	private void setupTabs() {
 		TabHost tabs = (TabHost) findViewById(R.id.tabhost);
@@ -274,7 +269,6 @@ public class ChoosePictureActivity extends FragmentActivity implements
 		GridView gvPictures = (GridView) findViewById(R.id.gvDefaultPictures);
 		GridView gvGallery = (GridView) findViewById(R.id.gvPhoneGallery);
 		GridView gvSymbols = (GridView) findViewById(R.id.gvSymbols);
-
 		gvPictures.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View v,
 					int position, long id) {
@@ -286,7 +280,6 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				startActivity(intent);
 			}
 		});
-
 		gvGallery.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View v,
 					int position, long id) {
@@ -297,11 +290,22 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				intent.putExtra("PICTURE", mCursor.getString(mDataColumnIndex));
 				startActivity(intent);
 			}
+		});		
+		gvSymbols.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> parent, View v,
+					int position, long id) {
+				Intent intent = new Intent(getApplicationContext(),
+						MainActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+				intent.putExtra("CHOICE", MainActivity.SYMBOL);
+				intent.putExtra("PICTURE", position);
+				startActivity(intent);
+			}
 		});
-
 		mGalleryAdapter = new GalleryAdapter(this, null, 0);
 		gvGallery.setAdapter(mGalleryAdapter);
 		gvPictures.setAdapter(new PictureAdapter());
+		gvSymbols.setAdapter(new SymbolAdapter());
 	}
 
 	private void setThumbWidth() {

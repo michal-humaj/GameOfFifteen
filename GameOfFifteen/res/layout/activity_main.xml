@@ -4,38 +4,34 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_repeat"
     tools:context=".MainActivity" >
-    
-    <ImageButton
-        android:id="@+id/btn3x3"
-        android:layout_width="40dp"
-        android:layout_height="40dp"        
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp" />
-    
-    <ImageButton
-        android:id="@+id/btn4x4"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp" 
-        android:layout_toRightOf="@id/btn3x3"/>
-        
-    <ImageButton
-        android:id="@+id/btn5x5"
-        android:layout_width="40dp"
-        android:layout_height="40dp"        
-        android:layout_marginTop="8dp" 
-        android:layout_marginLeft="8dp"
-        android:layout_below="@id/btn3x3" />
-    
-     <ImageButton
-        android:id="@+id/btn6x6"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_toRightOf="@id/btn5x5"
-        android:layout_below="@id/btn4x4" />    
+
+    <CheckBox
+        android:id="@+id/checkBox3x3"
+        android:onClick="onDiffChanged"
+        style="@style/CheckBoxStyle"
+        android:button="@drawable/check_box_selector" />
+
+    <CheckBox
+        android:id="@+id/checkBox4x4"
+        android:onClick="onDiffChanged"
+        style="@style/CheckBoxStyle"
+        android:layout_toRightOf="@id/checkBox3x3"
+        android:button="@drawable/check_box_selector" />
+
+    <CheckBox
+        android:id="@+id/checkBox5x5"
+        android:onClick="onDiffChanged"
+        style="@style/CheckBoxStyle"
+        android:layout_below="@id/checkBox3x3"
+        android:button="@drawable/check_box_selector" />
+
+    <CheckBox
+        android:id="@+id/checkBox6x6"
+        android:onClick="onDiffChanged"
+        style="@style/CheckBoxStyle"
+        android:layout_below="@id/checkBox4x4"
+        android:layout_toRightOf="@id/checkBox5x5"
+        android:button="@drawable/check_box_selector" />
 
     <Button
         android:id="@+id/btnChoosePicture"
@@ -43,8 +39,8 @@
         android:layout_height="88dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
-        android:layout_toRightOf="@id/btn4x4"
-        android:onClick="onChoosePicture" />
+        android:layout_toRightOf="@id/checkBox4x4"
+        android:onClick="onChoosePicture" />"
 
     <Button
         android:id="@+id/btnPlay"
@@ -69,7 +65,7 @@
         android:id="@+id/iv"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/btn5x5"
+        android:layout_below="@id/checkBox5x5"
         android:layout_marginTop="8dp"
         android:scaleType="centerCrop" />
 

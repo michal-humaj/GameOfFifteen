@@ -5,6 +5,7 @@ import humaj.michal.activity.ChoosePictureActivity.MyHandler;
 import humaj.michal.util.ImageUtils;
 import humaj.michal.util.SquareImageView;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentHashMap;
 
 import android.graphics.Bitmap;
@@ -16,13 +17,13 @@ public class GalleryLoader extends Thread {
 
 	private volatile boolean isKilled = false;
 
-	//private ChoosePictureActivity mActivity;
+	private WeakReference<ChoosePictureActivity> mActivity;
 	private MyHandler mHandler;
 	private int mThumbWidth;
 
 	public GalleryLoader(ChoosePictureActivity activity, MyHandler handler,
 			int thumbWidth) {
-		//mActivity = activity;
+		mActivity = new WeakReference<ChoosePictureActivity>(activity);
 		mHandler = handler;
 		mThumbWidth = thumbWidth;
 		mQueue = new ConcurrentHashMap<SquareImageView, String>();
@@ -63,9 +64,8 @@ public class GalleryLoader extends Thread {
 				if (fileName == null)
 					continue;
 				final Bitmap bitmap = ImageUtils.decodeSampledBitmapFromFile(
-						fileName, mThumbWidth, mThumbWidth);
-		
-				//mActivity.addBitmapToMemoryCache(fileName, bitmap);
+						fileName, mThumbWidth, mThumbWidth);		
+				mActivity.get().addBitmapToMemoryCache(fileName, bitmap);
 				if (mQueue.get(imageView) == null) {
 					final GalleryMessageObject holder = new GalleryMessageObject(
 							bitmap, imageView);
