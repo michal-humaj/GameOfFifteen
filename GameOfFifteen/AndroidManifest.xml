@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="4"
+        android:minSdkVersion="10"
         android:targetSdkVersion="18" />
 
     <application
@@ -27,6 +27,10 @@
             android:name="humaj.michal.activity.ChoosePictureActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_choose_picture" >
+        </activity>
+        <activity
+            android:name="humaj.michal.activity.GameActivity"
+            android:label="@string/title_activity_game" >
         </activity>
     </application>
 

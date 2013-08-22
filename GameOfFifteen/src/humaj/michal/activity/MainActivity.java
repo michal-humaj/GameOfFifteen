@@ -2,11 +2,8 @@ package humaj.michal.activity;
 
 import humaj.michal.R;
 import humaj.michal.util.ImageUtils;
-import humaj.michal.util.SquareImageView;
 import humaj.michal.util.TiledSquareImageView;
-
 import java.util.Random;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -17,23 +14,6 @@ import android.view.View;
 import android.widget.CheckBox;
 
 public class MainActivity extends Activity {
-
-	public static final Integer[] mPictureIDs = { R.drawable.p001,
-			R.drawable.p002, R.drawable.p003, R.drawable.p004, R.drawable.p005,
-			R.drawable.p006, R.drawable.p007, R.drawable.p008, R.drawable.p009,
-			R.drawable.p010, R.drawable.p011, R.drawable.p012, R.drawable.p013,
-			R.drawable.p014, R.drawable.p015, R.drawable.p016, R.drawable.p017,
-			R.drawable.p018, R.drawable.p019, R.drawable.p020 };
-
-	public static final Integer[][] mSymbolsIDs = {
-			{ R.drawable.s01d3, R.drawable.s02d3 },
-			{ R.drawable.s01d4, R.drawable.s02d4 },
-			{ R.drawable.s01d5, R.drawable.s02d5 },
-			{ R.drawable.s01d6, R.drawable.s02d6 } };
-
-	public static final int DEFAULT_PICTURE = 1111;
-	public static final int PHONE_GALLERY = 2222;
-	public static final int SYMBOL = 3333;
 
 	private TiledSquareImageView mIV;
 	private CheckBox checkBox3x3;
@@ -61,13 +41,18 @@ public class MainActivity extends Activity {
 		Intent intent = getIntent();
 		mDifficulty = intent.getIntExtra("DIFFICULTY", -1);
 		mIntent = getIntent();
-		mGameBitmap = getBitmapFromIntent(intent);
+		mGameBitmap = ImageUtils.getBitmapFromIntent(intent, getResources(),
+				mWidth, mDifficulty);
 		if (mGameBitmap == null) {
 			Random random = new Random(System.currentTimeMillis());
 			mDifficulty = random.nextInt(4) + 3;
-			int randomIndex = random.nextInt(mPictureIDs.length);
+			int randomIndex = random.nextInt(ImageUtils.mPictureIDs.length);
+			mIntent.putExtra("CHOICE", ImageUtils.DEFAULT_PICTURE);
+			mIntent.putExtra("PICTURE", randomIndex);
+			mIntent.putExtra("DIFFICULTY", mDifficulty);
 			mGameBitmap = ImageUtils.decodeSampledBitmapFromResource(
-					getResources(), mPictureIDs[randomIndex], mWidth, mWidth);
+					getResources(), ImageUtils.mPictureIDs[randomIndex],
+					mWidth, mWidth);
 		}
 		checkRightCheckBox();
 		mIV.setImageBitmap(mGameBitmap);
@@ -85,7 +70,8 @@ public class MainActivity extends Activity {
 	protected void onNewIntent(Intent intent) {
 		mIntent = intent;
 		mGameBitmap.recycle();
-		mGameBitmap = getBitmapFromIntent(intent);
+		mGameBitmap = ImageUtils.getBitmapFromIntent(intent, getResources(),
+				mWidth, mDifficulty);
 		mIV.setImageBitmap(mGameBitmap);
 		super.onNewIntent(intent);
 	}
@@ -102,13 +88,27 @@ public class MainActivity extends Activity {
 		checkRightCheckBox();
 		mIV.setImageBitmap(mGameBitmap);
 		mIV.setDifficulty(mDifficulty);
-		mIV.setBorderWidth(mBorderWidth);		
+		mIV.setBorderWidth(mBorderWidth);
 	}
 
 	public void onChoosePicture(View v) {
 		Intent intent = new Intent(this, ChoosePictureActivity.class);
 		intent.putExtra("DIFFICULTY", mDifficulty);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+		startActivity(intent);
+	}
+
+	public void onPlay(View v) {
+		Intent intent = new Intent(this, GameActivity.class);		
+		int choice = mIntent.getIntExtra("CHOICE", -1);		
+		intent.putExtra("CHOICE", choice);
+		if (choice == ImageUtils.PHONE_GALLERY){
+			intent.putExtra("PICTURE", mIntent.getStringExtra("PICTURE"));
+		} else {
+			intent.putExtra("PICTURE", mIntent.getIntExtra("PICTURE", -1));
+		}		
+		intent.putExtra("DIFFICULTY", mDifficulty);
+		intent.putExtra("WIDTH", mWidth);		
 		startActivity(intent);
 	}
 
@@ -134,12 +134,13 @@ public class MainActivity extends Activity {
 		}
 
 		int choice = mIntent.getIntExtra("CHOICE", -1);
-		if (choice == SYMBOL) {
+		if (choice == ImageUtils.SYMBOL) {
 			int position = mIntent.getIntExtra("PICTURE", -1);
 			mGameBitmap.recycle();
 			mGameBitmap = ImageUtils.decodeSampledBitmapFromResource(
-					getResources(), mSymbolsIDs[mDifficulty - 3][position],
-					mWidth, mWidth);
+					getResources(),
+					ImageUtils.mSymbolsIDs[mDifficulty - 3][position], mWidth,
+					mWidth);
 			mIV.setImageBitmap(mGameBitmap);
 		}
 	}
@@ -183,25 +184,6 @@ public class MainActivity extends Activity {
 		case DisplayMetrics.DENSITY_XXHIGH:
 			mBorderWidth = 6;
 			break;
-		}
-	}
-
-	private Bitmap getBitmapFromIntent(Intent intent) {
-		int choice = intent.getIntExtra("CHOICE", -1);
-		if (choice == DEFAULT_PICTURE) {
-			int position = intent.getIntExtra("PICTURE", -1);
-			return ImageUtils.decodeSampledBitmapFromResource(getResources(),
-					mPictureIDs[position], mWidth, mWidth);
-		} else if (choice == PHONE_GALLERY) {
-			String fileName = intent.getStringExtra("PICTURE");
-			return ImageUtils.decodeSampledBitmapFromFile(fileName, mWidth,
-					mWidth);
-		} else if (choice == SYMBOL) {
-			int position = intent.getIntExtra("PICTURE", -1);
-			return ImageUtils.decodeSampledBitmapFromResource(getResources(),
-					mSymbolsIDs[mDifficulty - 3][position], mWidth, mWidth);
-		} else {
-			return null;
 		}
 	}
 }

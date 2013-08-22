@@ -1,0 +1,98 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_repeat"
+    tools:context=".GameActivity" >
+
+    <ImageView
+        android:id="@+id/ivPreview"
+        android:layout_width="94dp"
+        android:layout_height="94dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp" />
+
+    <humaj.michal.gameoffifteen.SquareGameSurfaceView
+        android:id="@+id/gameSurfaceView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/ivPreview"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:id="@+id/linLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="8dp"
+        android:layout_toRightOf="@id/ivPreview"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btnEmpty"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="16dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnPreview"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="8dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnPause"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+    
+    <ImageView
+        android:id="@+id/icTime"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_toRightOf="@id/ivPreview"
+        android:layout_alignTop="@id/ivPreview"        
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_time" />
+    
+    <ImageView
+        android:id="@+id/icMoves"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_toRightOf="@id/ivPreview"
+        android:layout_below="@id/icTime"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_moves" />
+    
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"        
+        android:layout_toRightOf="@id/icTime"
+        android:layout_alignBottom="@id/icTime"
+        android:textSize="14sp"            
+        android:text="04:25  Best: 05:32" />
+    
+    <TextView
+        android:id="@+id/tvMoves"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"        
+        android:layout_toRightOf="@id/icMoves"
+        android:layout_alignBottom="@id/icMoves"
+        android:textSize="14sp"        
+        android:text="192      Best: 368" />
+
+    
+
+</RelativeLayout>

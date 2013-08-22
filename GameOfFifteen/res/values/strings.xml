@@ -6,7 +6,9 @@
     <string name="title_activity_choose_picture">ChoosePictureActivity</string>
     <string name="action_settings">Settings</string>
     <string name="tabDefaultPictures">Pictures</string>
-    <string name="tabPhoneGallery">Gallery</string>   
+    <string name="tabPhoneGallery">Gallery</string>
     <string name="tabSymbols">Symbols</string>
+    <string name="title_activity_game">GameActivity</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

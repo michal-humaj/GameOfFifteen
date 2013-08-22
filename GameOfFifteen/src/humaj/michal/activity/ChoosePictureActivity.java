@@ -4,6 +4,7 @@ import humaj.michal.R;
 import humaj.michal.uilogic.GalleryLoader;
 import humaj.michal.uilogic.GalleryMessageObject;
 import humaj.michal.uilogic.PictureLoader;
+import humaj.michal.util.ImageUtils;
 import humaj.michal.util.SquareImageView;
 import android.content.Context;
 import android.content.Intent;
@@ -277,7 +278,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				Intent intent = new Intent(getApplicationContext(),
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-				intent.putExtra("CHOICE", MainActivity.DEFAULT_PICTURE);
+				intent.putExtra("CHOICE", ImageUtils.DEFAULT_PICTURE);
 				intent.putExtra("PICTURE", position);
 				intent.putExtra("DIFFICULTY", mDifficulty);
 				startActivity(intent);
@@ -289,7 +290,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				Intent intent = new Intent(getApplicationContext(),
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-				intent.putExtra("CHOICE", MainActivity.PHONE_GALLERY);
+				intent.putExtra("CHOICE", ImageUtils.PHONE_GALLERY);
 				intent.putExtra("PICTURE", mCursor.getString(mDataColumnIndex));
 				intent.putExtra("DIFFICULTY", mDifficulty);
 				startActivity(intent);
@@ -301,7 +302,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				Intent intent = new Intent(getApplicationContext(),
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-				intent.putExtra("CHOICE", MainActivity.SYMBOL);
+				intent.putExtra("CHOICE", ImageUtils.SYMBOL);
 				intent.putExtra("PICTURE", position);
 				intent.putExtra("DIFFICULTY", mDifficulty);
 				startActivity(intent);
