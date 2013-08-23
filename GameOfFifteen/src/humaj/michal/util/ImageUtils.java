@@ -9,6 +9,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
 
 public class ImageUtils {
@@ -18,7 +20,7 @@ public class ImageUtils {
 			R.drawable.p006, R.drawable.p007, R.drawable.p008, R.drawable.p009,
 			R.drawable.p010, R.drawable.p011, R.drawable.p012, R.drawable.p013,
 			R.drawable.p014, R.drawable.p015, R.drawable.p016, R.drawable.p017,
-			R.drawable.p018, R.drawable.p019, R.drawable.p020 };
+			R.drawable.p018, R.drawable.p019, R.drawable.p020, R.drawable.p021 };
 
 	public static final Integer[][] mSymbolsIDs = {
 			{ R.drawable.s01d3, R.drawable.s02d3 },
@@ -29,6 +31,29 @@ public class ImageUtils {
 	public static final int DEFAULT_PICTURE = 1111;
 	public static final int PHONE_GALLERY = 2222;
 	public static final int SYMBOL = 3333;
+
+	public static Paint up;
+	public static Paint down;
+	public static Paint right;
+	public static Paint left;
+
+	static {
+		up = new Paint();
+		up.setStrokeWidth(0);
+		up.setARGB(153, 255, 255, 255);
+
+		left = new Paint();
+		left.setStrokeWidth(0);
+		left.setARGB(102, 255, 255, 255);
+
+		down = new Paint();
+		down.setStrokeWidth(0);
+		down.setARGB(153, 0, 0, 0);
+
+		right = new Paint();
+		right.setStrokeWidth(0);
+		right.setARGB(102, 0, 0, 0);
+	}
 
 	public static int calculateInSampleSize(BitmapFactory.Options options,
 			int reqWidth, int reqHeight) {
@@ -57,7 +82,7 @@ public class ImageUtils {
 	}
 
 	public static Bitmap decodeSampledBitmapFromResource(Resources res,
-			int resId, int reqWidth, int reqHeight) {
+			int resId, int reqWidth) {
 
 		// First decode with inJustDecodeBounds=true to check dimensions
 		final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -66,7 +91,7 @@ public class ImageUtils {
 
 		// Calculate inSampleSize
 		options.inSampleSize = calculateInSampleSize(options, reqWidth,
-				reqHeight);
+				reqWidth);
 
 		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;
@@ -74,13 +99,13 @@ public class ImageUtils {
 	}
 
 	public static Bitmap decodeSampledBitmapFromFile(String fileName,
-			int reqWidth, int reqHeight) {
+			int reqWidth) {
 		BitmapRegionDecoder decoder;
 		try {
 			decoder = BitmapRegionDecoder.newInstance(fileName, false);
 		} catch (IOException e) {
 			e.printStackTrace();
-			return null;
+			throw new NullPointerException();
 		}
 		int width = decoder.getWidth();
 		int height = decoder.getHeight();
@@ -96,7 +121,7 @@ public class ImageUtils {
 
 	/*
 	 * public static Bitmap decodeSampledBitmapFromFile(String fileName, int
-	 * reqWidth, int reqHeight) {
+	 * reqWidth) {
 	 * 
 	 * // First decode with inJustDecodeBounds=true to check dimensions final
 	 * BitmapFactory.Options options = new BitmapFactory.Options();
@@ -110,23 +135,44 @@ public class ImageUtils {
 	 * false; return BitmapFactory.decodeFile(fileName, options); }
 	 */
 
-	public static Bitmap getBitmapFromIntent(Intent intent, Resources res, int width,
-			int difficulty) {
+	public static Bitmap getBitmapFromIntent(Intent intent, Resources res,
+			int width, int difficulty) {
 		int choice = intent.getIntExtra("CHOICE", -1);
 		if (choice == DEFAULT_PICTURE) {
 			int position = intent.getIntExtra("PICTURE", -1);
 			return ImageUtils.decodeSampledBitmapFromResource(res,
-					mPictureIDs[position], width, width);
+					mPictureIDs[position], width);
 		} else if (choice == PHONE_GALLERY) {
 			String fileName = intent.getStringExtra("PICTURE");
-			return ImageUtils.decodeSampledBitmapFromFile(fileName, width,
-					width);
+			return ImageUtils.decodeSampledBitmapFromFile(fileName, width);
 		} else if (choice == SYMBOL) {
 			int position = intent.getIntExtra("PICTURE", -1);
 			return ImageUtils.decodeSampledBitmapFromResource(res,
-					mSymbolsIDs[difficulty - 3][position], width, width);
+					mSymbolsIDs[difficulty - 3][position], width);
 		} else {
 			return null;
+		}
+	}
+
+	public static Rect getRect(int x, int y, double tileWidth) {
+		return new Rect((int) Math.round(x * tileWidth), (int) Math.round(y
+				* tileWidth), (int) Math.round((x + 1) * tileWidth),
+				(int) Math.round((y + 1) * tileWidth));
+	}
+
+	public static void drawBorder(Canvas canvas, int x1, int y1, int x2,
+			int y2, int borderWidth) {
+		for (int k = 0; k < borderWidth; k++) {
+			canvas.drawLine(x1 + k, y1 + k, x2 - 1 - k, y1 + k, up);
+		}
+		for (int k = 0; k < borderWidth; k++) {
+			canvas.drawLine(x1 + 1 + k, y2 - k, x2 - k, y2 - k, down);
+		}
+		for (int k = 0; k < borderWidth; k++) {
+			canvas.drawLine(x1 + k, y1 + 1 + k, x1 + k, y2 - k, left);
+		}
+		for (int k = 0; k < borderWidth; k++) {
+			canvas.drawLine(x2 - k, y2 + k, x2 - k, y2 - 1 - k, right);
 		}
 	}
 }

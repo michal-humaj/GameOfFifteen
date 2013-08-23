@@ -106,7 +106,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				R.drawable.t009, R.drawable.t010, R.drawable.t011,
 				R.drawable.t012, R.drawable.t013, R.drawable.t014,
 				R.drawable.t015, R.drawable.t016, R.drawable.t017,
-				R.drawable.t018, R.drawable.t019, R.drawable.t020 };
+				R.drawable.t018, R.drawable.t019, R.drawable.t020, R.drawable.t021 };
 
 		public PictureAdapter() {
 		}

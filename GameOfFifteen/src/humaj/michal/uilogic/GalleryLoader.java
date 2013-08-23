@@ -64,7 +64,7 @@ public class GalleryLoader extends Thread {
 				if (fileName == null)
 					continue;
 				final Bitmap bitmap = ImageUtils.decodeSampledBitmapFromFile(
-						fileName, mThumbWidth, mThumbWidth);		
+						fileName, mThumbWidth);		
 				mActivity.get().addBitmapToMemoryCache(fileName, bitmap);
 				if (mQueue.get(imageView) == null) {
 					final GalleryMessageObject holder = new GalleryMessageObject(

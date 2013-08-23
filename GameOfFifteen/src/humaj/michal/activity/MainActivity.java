@@ -23,7 +23,7 @@ public class MainActivity extends Activity {
 
 	Intent mIntent;
 
-	private Bitmap mGameBitmap = null;
+	private Bitmap mGameBitmap;
 	private int mDifficulty;
 	private int mWidth;
 	private int mBorderWidth;
@@ -50,9 +50,9 @@ public class MainActivity extends Activity {
 			mIntent.putExtra("CHOICE", ImageUtils.DEFAULT_PICTURE);
 			mIntent.putExtra("PICTURE", randomIndex);
 			mIntent.putExtra("DIFFICULTY", mDifficulty);
-			mGameBitmap = ImageUtils.decodeSampledBitmapFromResource(
-					getResources(), ImageUtils.mPictureIDs[randomIndex],
-					mWidth, mWidth);
+			mGameBitmap = ImageUtils
+					.decodeSampledBitmapFromResource(getResources(),
+							ImageUtils.mPictureIDs[randomIndex], mWidth);
 		}
 		checkRightCheckBox();
 		mIV.setImageBitmap(mGameBitmap);
@@ -99,16 +99,17 @@ public class MainActivity extends Activity {
 	}
 
 	public void onPlay(View v) {
-		Intent intent = new Intent(this, GameActivity.class);		
-		int choice = mIntent.getIntExtra("CHOICE", -1);		
+		Intent intent = new Intent(this, GameActivity.class);
+		int choice = mIntent.getIntExtra("CHOICE", -1);
 		intent.putExtra("CHOICE", choice);
-		if (choice == ImageUtils.PHONE_GALLERY){
+		if (choice == ImageUtils.PHONE_GALLERY) {
 			intent.putExtra("PICTURE", mIntent.getStringExtra("PICTURE"));
 		} else {
 			intent.putExtra("PICTURE", mIntent.getIntExtra("PICTURE", -1));
-		}		
+		}
+		intent.putExtra("WIDTH", mWidth);
 		intent.putExtra("DIFFICULTY", mDifficulty);
-		intent.putExtra("WIDTH", mWidth);		
+		intent.putExtra("BORDER_WIDTH", mBorderWidth);
 		startActivity(intent);
 	}
 
@@ -139,8 +140,7 @@ public class MainActivity extends Activity {
 			mGameBitmap.recycle();
 			mGameBitmap = ImageUtils.decodeSampledBitmapFromResource(
 					getResources(),
-					ImageUtils.mSymbolsIDs[mDifficulty - 3][position], mWidth,
-					mWidth);
+					ImageUtils.mSymbolsIDs[mDifficulty - 3][position], mWidth);
 			mIV.setImageBitmap(mGameBitmap);
 		}
 	}
@@ -164,7 +164,7 @@ public class MainActivity extends Activity {
 
 	private void setPicWidthAndTileBorderWidth() {
 		DisplayMetrics metrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);		
 		int height = metrics.heightPixels;
 		int width = metrics.widthPixels;
 		mWidth = height < width ? height : width;
