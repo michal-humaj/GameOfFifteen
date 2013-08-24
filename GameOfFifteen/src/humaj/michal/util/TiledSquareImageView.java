@@ -32,8 +32,8 @@ public class TiledSquareImageView extends SquareImageView {
 		for (int j = 0; j < mDifficulty; j++) {
 			for (int i = 0; i < mDifficulty; i++) {
 				Rect rect = ImageUtils.getRect(i, j, tileWidth);
-				ImageUtils.drawBorder(canvas, rect.left, rect.top, rect.right - 1,
-						rect.bottom - 1, mBorderWidth);
+				ImageUtils.drawBorder(canvas, rect.left, rect.top, rect.right,
+						rect.bottom, mBorderWidth);
 			}
 		}
 	}

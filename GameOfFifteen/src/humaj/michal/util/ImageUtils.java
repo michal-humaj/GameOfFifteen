@@ -40,19 +40,19 @@ public class ImageUtils {
 	static {
 		up = new Paint();
 		up.setStrokeWidth(0);
-		up.setARGB(153, 255, 255, 255);
+		up.setARGB(178, 255, 255, 255);
 
 		left = new Paint();
 		left.setStrokeWidth(0);
-		left.setARGB(102, 255, 255, 255);
+		left.setARGB(114, 255, 255, 255);
 
 		down = new Paint();
 		down.setStrokeWidth(0);
-		down.setARGB(153, 0, 0, 0);
+		down.setARGB(178, 0, 0, 0);
 
 		right = new Paint();
 		right.setStrokeWidth(0);
-		right.setARGB(102, 0, 0, 0);
+		right.setARGB(114, 0, 0, 0);
 	}
 
 	public static int calculateInSampleSize(BitmapFactory.Options options,
@@ -166,13 +166,13 @@ public class ImageUtils {
 			canvas.drawLine(x1 + k, y1 + k, x2 - 1 - k, y1 + k, up);
 		}
 		for (int k = 0; k < borderWidth; k++) {
-			canvas.drawLine(x1 + 1 + k, y2 - k, x2 - k, y2 - k, down);
+			canvas.drawLine(x1 + 1 + k, y2 - k - 1, x2 - k, y2 - k - 1, down);
 		}
 		for (int k = 0; k < borderWidth; k++) {
 			canvas.drawLine(x1 + k, y1 + 1 + k, x1 + k, y2 - k, left);
 		}
 		for (int k = 0; k < borderWidth; k++) {
-			canvas.drawLine(x2 - k, y2 + k, x2 - k, y2 - 1 - k, right);
+			canvas.drawLine(x2 - k - 1, y1 + k, x2 - k - 1, y2 - 1 - k, right);
 		}
 	}
 }

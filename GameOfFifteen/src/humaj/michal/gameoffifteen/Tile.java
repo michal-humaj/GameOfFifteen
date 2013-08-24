@@ -7,8 +7,7 @@ import android.graphics.Rect;
 
 public class Tile implements Runnable {
 
-	public static final int NUM_FRAMES = 7;
-
+	private static int mNumFrames;
 	private static int mBorderWidth;
 
 	private final Rect src;
@@ -28,6 +27,10 @@ public class Tile implements Runnable {
 	public static void setBorderWidth(int borderWidth) {
 		mBorderWidth = borderWidth;
 	}
+	
+	public static void setNumFrames(int n) {
+		mNumFrames = n;
+	}
 
 	@Override
 	public void run() {
@@ -38,13 +41,15 @@ public class Tile implements Runnable {
 		synchronized (this) {
 			origX = dst.left;
 			origY = dst.top;
-			xIncrement = (to.left - dst.left) / (double) NUM_FRAMES;
-			yIncrement = (to.top - dst.top) / (double) NUM_FRAMES;
+			xIncrement = (to.left - dst.left) / (double) mNumFrames;
+			yIncrement = (to.top - dst.top) / (double) mNumFrames;
 		}
-		for (int i = 1; i < NUM_FRAMES; i++) {
+		for (int i = 1; i < mNumFrames; i++) {
 			synchronized (this) {
-				dst.offsetTo((int) Math.round(i * xIncrement + origX),
-						(int) Math.round(i * yIncrement + origY));
+				if (i < mNumFrames) {
+					dst.offsetTo((int) Math.round(i * xIncrement + origX),
+							(int) Math.round(i * yIncrement + origY));
+				}
 			}
 			try {
 				Thread.sleep(15);
@@ -60,17 +65,19 @@ public class Tile implements Runnable {
 
 	public boolean slide(Rect to) {
 		if (t == null || !t.isAlive()) {
-			this.to = to;
-			t = new Thread(this);
-			t.start();
-			return true;
+			synchronized (this) {
+				this.to = to;
+				t = new Thread(this);
+				t.start();
+				return true;
+			}
 		}
 		return false;
 	}
 
 	public synchronized void draw(Canvas c, Bitmap b) {
 		c.drawBitmap(b, src, dst, null);
-		ImageUtils.drawBorder(c, dst.left, dst.top, dst.right - 1, dst.bottom - 1,
+		ImageUtils.drawBorder(c, dst.left, dst.top, dst.right, dst.bottom,
 				mBorderWidth);
 	}
 
@@ -88,5 +95,9 @@ public class Tile implements Runnable {
 
 	public synchronized Rect getDst() {
 		return dst;
+	}
+
+	public synchronized Thread getThread() {
+		return t;
 	}
 }
