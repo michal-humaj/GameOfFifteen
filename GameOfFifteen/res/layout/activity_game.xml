@@ -4,12 +4,21 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_repeat"
     tools:context=".GameActivity" >
+    
+   <!--  <com.google.ads.AdView
+        xmlns:googleads="http://schemas.android.com/apk/lib/com.google.ads"
+        android:id="@+id/ad"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        googleads:adSize="BANNER"
+        googleads:adUnitId="ca-app-pub-7033939812012552/9040332422" />--> 
 
     <ImageView
         android:id="@+id/ivPreview"
         android:layout_width="94dp"
         android:layout_height="94dp"
-        android:layout_alignParentBottom="true"
+        android:layout_alignParentBottom="true"        
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp" />
 
@@ -30,18 +39,21 @@
         android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/btnEmpty"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="16dp"
-            android:layout_weight="1" />
-
-        <Button
             android:id="@+id/btnPreview"
             android:layout_width="0dp"
             android:layout_height="40dp"
-            android:layout_marginLeft="8dp"
-            android:layout_weight="1" />
+            android:layout_marginLeft="16dp"            
+            android:layout_weight="1"
+            android:text="Preview" />
+
+        <ToggleButton
+            android:id="@+id/btnEmpty"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="8dp"            
+            android:layout_weight="1"
+            android:onClick="onToggleEmptySeen"
+            android:text="Toggle Empty" />
 
         <Button
             android:id="@+id/btnPause"
@@ -49,7 +61,9 @@
             android:layout_height="40dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:onClick="onPausePressed"
+            android:text="Pause" />
     </LinearLayout>
     
     <ImageView

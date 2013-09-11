@@ -40,7 +40,8 @@
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
         android:layout_toRightOf="@id/checkBox4x4"
-        android:onClick="onChoosePicture" />"
+        android:onClick="onChoosePicture"
+        android:text="Choose Picture" />
 
     <Button
         android:id="@+id/btnPlay"
@@ -50,7 +51,8 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:layout_toRightOf="@id/btnChoosePicture"
-        android:onClick="onPlay" />
+        android:onClick="onPlay"
+        android:text="Play" />
 
     <Button
         android:id="@+id/btnHighscore"
@@ -60,7 +62,8 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        android:layout_toRightOf="@id/btnChoosePicture" />
+        android:layout_toRightOf="@id/btnChoosePicture"
+        android:text="Highscore" />
 
     <humaj.michal.util.TiledSquareImageView
         android:id="@+id/iv"
@@ -69,5 +72,14 @@
         android:layout_below="@id/checkBox5x5"
         android:layout_marginTop="8dp"
         android:scaleType="centerCrop" />
+    
+   <!--  <com.google.ads.AdView
+        xmlns:googleads="http://schemas.android.com/apk/lib/com.google.ads"
+        android:id="@+id/ad"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        googleads:adSize="BANNER"
+        googleads:adUnitId="ca-app-pub-7033939812012552/9040332422" />-->
 
 </RelativeLayout>

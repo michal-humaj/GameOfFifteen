@@ -32,10 +32,10 @@ public class ImageUtils {
 	public static final int PHONE_GALLERY = 2222;
 	public static final int SYMBOL = 3333;
 
-	public static Paint up;
-	public static Paint down;
-	public static Paint right;
-	public static Paint left;
+	private static Paint up;
+	private static Paint down;
+	private static Paint right;
+	private static Paint left;
 
 	static {
 		up = new Paint();
@@ -57,43 +57,25 @@ public class ImageUtils {
 
 	public static int calculateInSampleSize(BitmapFactory.Options options,
 			int reqWidth, int reqHeight) {
-
-		// Raw height and width of image
 		final int height = options.outHeight;
 		final int width = options.outWidth;
 		int inSampleSize = 1;
-
 		if (height > reqHeight || width > reqWidth) {
-
-			// Calculate ratios of height and width to requested height and
-			// width
 			final int heightRatio = Math.round((float) height
 					/ (float) reqHeight);
 			final int widthRatio = Math.round((float) width / (float) reqWidth);
-
-			// Choose the smallest ratio as inSampleSize value, this will
-			// guarantee
-			// a final image with both dimensions larger than or equal to the
-			// requested height and width.
 			inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
 		}
-
 		return inSampleSize;
 	}
 
 	public static Bitmap decodeSampledBitmapFromResource(Resources res,
 			int resId, int reqWidth) {
-
-		// First decode with inJustDecodeBounds=true to check dimensions
 		final BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
 		BitmapFactory.decodeResource(res, resId, options);
-
-		// Calculate inSampleSize
 		options.inSampleSize = calculateInSampleSize(options, reqWidth,
 				reqWidth);
-
-		// Decode bitmap with inSampleSize set
 		options.inJustDecodeBounds = false;
 		return BitmapFactory.decodeResource(res, resId, options);
 	}
@@ -154,10 +136,12 @@ public class ImageUtils {
 		}
 	}
 
-	public static Rect getRect(int x, int y, double tileWidth) {
-		return new Rect((int) Math.round(x * tileWidth), (int) Math.round(y
-				* tileWidth), (int) Math.round((x + 1) * tileWidth),
-				(int) Math.round((y + 1) * tileWidth));
+	public static Rect getRectForTile(Rect rect, int x, int y, double tileWidth) {
+		rect.left = (int) Math.round(x * tileWidth);
+		rect.top = (int) Math.round(y * tileWidth);
+		rect.right = (int) Math.round((x + 1) * tileWidth);
+		rect.bottom = (int) Math.round((y + 1) * tileWidth);
+		return rect;
 	}
 
 	public static void drawBorder(Canvas canvas, int x1, int y1, int x2,

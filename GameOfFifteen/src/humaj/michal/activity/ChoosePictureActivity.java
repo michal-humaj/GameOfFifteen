@@ -40,7 +40,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	
 	private int mDifficulty;
 
-	private MyHandler mHandler;
+	private ThumbnailHandler mHandler;
 	
 	private int mThumbWidth;
 	private Bitmap mPlaceHolderBitmap = null;
@@ -59,7 +59,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_choose_picture);
 		mDifficulty = getIntent().getIntExtra("DIFFICULTY", -1);
-		mHandler = new MyHandler(Looper.getMainLooper());
+		mHandler = new ThumbnailHandler(Looper.getMainLooper());
 		getSupportLoaderManager().initLoader(CURSOR_LOADER, null, this);
 		setupTabs();
 		setThumbWidth();
@@ -85,9 +85,9 @@ public class ChoosePictureActivity extends FragmentActivity implements
 		super.onStart();
 	}
 	
-	public static class MyHandler extends Handler {
+	public static class ThumbnailHandler extends Handler {
 
-		public MyHandler(Looper mainLooper) {
+		public ThumbnailHandler(Looper mainLooper) {
 			super(mainLooper);
 		}
 

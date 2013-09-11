@@ -1,6 +1,6 @@
 package humaj.michal.uilogic;
 
-import humaj.michal.activity.ChoosePictureActivity.MyHandler;
+import humaj.michal.activity.ChoosePictureActivity.ThumbnailHandler;
 import humaj.michal.util.SquareImageView;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,9 +17,9 @@ public class PictureLoader extends Thread {
 	private volatile boolean isKilled = false;
 
 	private Resources mResources;
-	private MyHandler mHandler;
+	private ThumbnailHandler mHandler;
 
-	public PictureLoader(Resources res, MyHandler handler) {
+	public PictureLoader(Resources res, ThumbnailHandler handler) {
 		mResources = res;
 		mHandler = handler;
 

@@ -1,7 +1,7 @@
 package humaj.michal.uilogic;
 
 import humaj.michal.activity.ChoosePictureActivity;
-import humaj.michal.activity.ChoosePictureActivity.MyHandler;
+import humaj.michal.activity.ChoosePictureActivity.ThumbnailHandler;
 import humaj.michal.util.ImageUtils;
 import humaj.michal.util.SquareImageView;
 
@@ -18,10 +18,10 @@ public class GalleryLoader extends Thread {
 	private volatile boolean isKilled = false;
 
 	private WeakReference<ChoosePictureActivity> mActivity;
-	private MyHandler mHandler;
+	private ThumbnailHandler mHandler;
 	private int mThumbWidth;
 
-	public GalleryLoader(ChoosePictureActivity activity, MyHandler handler,
+	public GalleryLoader(ChoosePictureActivity activity, ThumbnailHandler handler,
 			int thumbWidth) {
 		mActivity = new WeakReference<ChoosePictureActivity>(activity);
 		mHandler = handler;

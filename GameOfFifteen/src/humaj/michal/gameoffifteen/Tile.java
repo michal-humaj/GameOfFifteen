@@ -27,7 +27,11 @@ public class Tile implements Runnable {
 	public static void setBorderWidth(int borderWidth) {
 		mBorderWidth = borderWidth;
 	}
-	
+
+	public static int getBorderWidth() {
+		return mBorderWidth;
+	}
+
 	public static void setNumFrames(int n) {
 		mNumFrames = n;
 	}

@@ -28,10 +28,11 @@ public class TiledSquareImageView extends SquareImageView {
 
 	@Override
 	protected void dispatchDraw(Canvas canvas) {
+		Rect rect = new Rect();
 		double tileWidth = getWidth() / (double) mDifficulty;
 		for (int j = 0; j < mDifficulty; j++) {
 			for (int i = 0; i < mDifficulty; i++) {
-				Rect rect = ImageUtils.getRect(i, j, tileWidth);
+				rect = ImageUtils.getRectForTile(rect, i, j, tileWidth);
 				ImageUtils.drawBorder(canvas, rect.left, rect.top, rect.right,
 						rect.bottom, mBorderWidth);
 			}

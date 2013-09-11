@@ -1,6 +1,7 @@
 package humaj.michal.activity;
 
 import humaj.michal.R;
+import humaj.michal.util.BitmapHolder;
 import humaj.michal.util.ImageUtils;
 import humaj.michal.util.TiledSquareImageView;
 import java.util.Random;
@@ -23,7 +24,6 @@ public class MainActivity extends Activity {
 
 	Intent mIntent;
 
-	private Bitmap mGameBitmap;
 	private int mDifficulty;
 	private int mWidth;
 	private int mBorderWidth;
@@ -38,41 +38,49 @@ public class MainActivity extends Activity {
 		checkBox5x5 = (CheckBox) findViewById(R.id.checkBox5x5);
 		checkBox6x6 = (CheckBox) findViewById(R.id.checkBox6x6);
 		setPicWidthAndTileBorderWidth();
-		Intent intent = getIntent();
-		mDifficulty = intent.getIntExtra("DIFFICULTY", -1);
 		mIntent = getIntent();
-		mGameBitmap = ImageUtils.getBitmapFromIntent(intent, getResources(),
+		mDifficulty = mIntent.getIntExtra("DIFFICULTY", -1);
+		BitmapHolder bh = BitmapHolder.getInstance();
+		Bitmap bitmap = ImageUtils.getBitmapFromIntent(mIntent, getResources(),
 				mWidth, mDifficulty);
-		if (mGameBitmap == null) {
+		if (bitmap == null) {
 			Random random = new Random(System.currentTimeMillis());
 			mDifficulty = random.nextInt(4) + 3;
 			int randomIndex = random.nextInt(ImageUtils.mPictureIDs.length);
 			mIntent.putExtra("CHOICE", ImageUtils.DEFAULT_PICTURE);
 			mIntent.putExtra("PICTURE", randomIndex);
 			mIntent.putExtra("DIFFICULTY", mDifficulty);
-			mGameBitmap = ImageUtils
-					.decodeSampledBitmapFromResource(getResources(),
-							ImageUtils.mPictureIDs[randomIndex], mWidth);
+			bitmap = ImageUtils.decodeSampledBitmapFromResource(getResources(),
+					ImageUtils.mPictureIDs[randomIndex], mWidth);
 		}
+		bh.setBitmap(bitmap);
 		checkRightCheckBox();
-		mIV.setImageBitmap(mGameBitmap);
+		mIV.setImageBitmap(bitmap);
 		mIV.setDifficulty(mDifficulty);
 		mIV.setBorderWidth(mBorderWidth);
+
+		/*
+		 * AdView mAdView = (AdView) findViewById(R.id.ad); AdRequest adRequest
+		 * = new AdRequest(); adRequest.addKeyword("sport goods");
+		 * adRequest.setTesting(true); mAdView.loadAd(adRequest);
+		 */
 	}
 
 	@Override
 	protected void onDestroy() {
-		mGameBitmap.recycle();
+		BitmapHolder.getInstance().getBitmap().recycle();
 		super.onDestroy();
 	}
 
 	@Override
 	protected void onNewIntent(Intent intent) {
 		mIntent = intent;
-		mGameBitmap.recycle();
-		mGameBitmap = ImageUtils.getBitmapFromIntent(intent, getResources(),
+		BitmapHolder bh = BitmapHolder.getInstance();
+		bh.getBitmap().recycle();
+		Bitmap bitmap = ImageUtils.getBitmapFromIntent(mIntent, getResources(),
 				mWidth, mDifficulty);
-		mIV.setImageBitmap(mGameBitmap);
+		mIV.setImageBitmap(bitmap);
+		bh.setBitmap(bitmap);
 		super.onNewIntent(intent);
 	}
 
@@ -86,7 +94,7 @@ public class MainActivity extends Activity {
 		checkBox5x5 = (CheckBox) findViewById(R.id.checkBox5x5);
 		checkBox6x6 = (CheckBox) findViewById(R.id.checkBox6x6);
 		checkRightCheckBox();
-		mIV.setImageBitmap(mGameBitmap);
+		mIV.setImageBitmap(BitmapHolder.getInstance().getBitmap());
 		mIV.setDifficulty(mDifficulty);
 		mIV.setBorderWidth(mBorderWidth);
 	}
@@ -99,16 +107,9 @@ public class MainActivity extends Activity {
 	}
 
 	public void onPlay(View v) {
-		Intent intent = new Intent(this, GameActivity.class);
-		int choice = mIntent.getIntExtra("CHOICE", -1);
-		intent.putExtra("CHOICE", choice);
-		if (choice == ImageUtils.PHONE_GALLERY) {
-			intent.putExtra("PICTURE", mIntent.getStringExtra("PICTURE"));
-		} else {
-			intent.putExtra("PICTURE", mIntent.getIntExtra("PICTURE", -1));
-		}
-		intent.putExtra("WIDTH", mWidth);
+		Intent intent = new Intent(this, GameActivity.class);		
 		intent.putExtra("DIFFICULTY", mDifficulty);
+		intent.putExtra("WIDTH", mWidth);
 		intent.putExtra("BORDER_WIDTH", mBorderWidth);
 		startActivity(intent);
 	}
@@ -137,11 +138,13 @@ public class MainActivity extends Activity {
 		int choice = mIntent.getIntExtra("CHOICE", -1);
 		if (choice == ImageUtils.SYMBOL) {
 			int position = mIntent.getIntExtra("PICTURE", -1);
-			mGameBitmap.recycle();
-			mGameBitmap = ImageUtils.decodeSampledBitmapFromResource(
+			BitmapHolder bh = BitmapHolder.getInstance();
+			bh.getBitmap().recycle();
+			Bitmap bitmap = ImageUtils.decodeSampledBitmapFromResource(
 					getResources(),
 					ImageUtils.mSymbolsIDs[mDifficulty - 3][position], mWidth);
-			mIV.setImageBitmap(mGameBitmap);
+			bh.setBitmap(bitmap);
+			mIV.setImageBitmap(bitmap);
 		}
 	}
 
@@ -164,7 +167,7 @@ public class MainActivity extends Activity {
 
 	private void setPicWidthAndTileBorderWidth() {
 		DisplayMetrics metrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(metrics);		
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		int height = metrics.heightPixels;
 		int width = metrics.widthPixels;
 		mWidth = height < width ? height : width;
