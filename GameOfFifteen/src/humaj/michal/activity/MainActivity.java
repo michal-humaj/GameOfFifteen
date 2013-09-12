@@ -107,10 +107,18 @@ public class MainActivity extends Activity {
 	}
 
 	public void onPlay(View v) {
-		Intent intent = new Intent(this, GameActivity.class);		
+		Intent intent = new Intent(this, GameActivity.class);
 		intent.putExtra("DIFFICULTY", mDifficulty);
 		intent.putExtra("WIDTH", mWidth);
 		intent.putExtra("BORDER_WIDTH", mBorderWidth);
+		int choice = mIntent.getIntExtra("CHOICE", -1);
+		intent.putExtra("CHOICE", choice);
+		if (choice == ImageUtils.PHONE_GALLERY) {
+			intent.putExtra("PICTURE", mIntent.getStringExtra("PICTURE"));
+		} else {
+			intent.putExtra("THUMBNAIL_ID",
+					mIntent.getIntExtra("THUMBNAIL_ID", -1));
+		}
 		startActivity(intent);
 	}
 

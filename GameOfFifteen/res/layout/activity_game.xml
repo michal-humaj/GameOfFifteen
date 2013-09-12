@@ -22,7 +22,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp" />
 
-    <humaj.michal.gameoffifteen.SquareGameSurfaceView
+    <humaj.michal.util.SquareGameSurfaceView
         android:id="@+id/gameSurfaceView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

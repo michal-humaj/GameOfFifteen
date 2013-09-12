@@ -1,18 +1,20 @@
 package humaj.michal.activity;
 
 import humaj.michal.R;
-import humaj.michal.gameoffifteen.SquareGameSurfaceView;
+import humaj.michal.gameoffifteen.HighscoreContract;
+import humaj.michal.gameoffifteen.HighscoreContract.HighscoreEntry;
+import humaj.michal.gameoffifteen.HighscoreDbHelper;
 import humaj.michal.gameoffifteen.SurfaceRenderer;
 import humaj.michal.uilogic.BackDialog;
-import humaj.michal.uilogic.PauseDialog;
 import humaj.michal.uilogic.BackDialog.BackDialogListener;
+import humaj.michal.uilogic.PauseDialog;
 import humaj.michal.uilogic.WinDialog;
 import humaj.michal.util.BitmapHolder;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
+import humaj.michal.util.ImageUtils;
+import humaj.michal.util.SquareGameSurfaceView;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,7 +29,6 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class GameActivity extends FragmentActivity implements OnTouchListener,
 		BackDialogListener {
@@ -36,12 +37,15 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 	private SurfaceRenderer mSurfaceRenderer;
 	private boolean mDialogPaused = false;
 	private boolean mQuitPressed = false;
+	private int mDifficulty;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
 
+		Intent intent = getIntent();
+		mDifficulty = intent.getIntExtra("DIFFICULTY", -1);
 		Object config = getLastCustomNonConfigurationInstance();
 		if (config != null) {
 			mSurfaceRenderer = (SurfaceRenderer) config;
@@ -49,12 +53,10 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 			mSurfaceRenderer.setTimeHandler(new TimeHandler(Looper
 					.getMainLooper(), (TextView) findViewById(R.id.tvTime)));
 		} else {
-			Intent intent = getIntent();
-			int difficulty = intent.getIntExtra("DIFFICULTY", -1);
 			int borderWidth = intent.getIntExtra("BORDER_WIDTH", -1);
 			int surfaceWidth = intent.getIntExtra("WIDTH", -1);
 			mSurfaceRenderer = new SurfaceRenderer(
-					(TextView) findViewById(R.id.tvMoves), difficulty,
+					(TextView) findViewById(R.id.tvMoves), mDifficulty,
 					surfaceWidth, borderWidth, new TimeHandler(
 							Looper.getMainLooper(),
 							(TextView) findViewById(R.id.tvTime)));
@@ -71,11 +73,6 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 		btnPreview.setOnTouchListener(previewListener);
 		if (config == null)
 			mSurfaceRenderer.shuffleTiles();
-		/*
-		 * AdView mAdView = (AdView) findViewById(R.id.ad); AdRequest adRequest
-		 * = new AdRequest(); adRequest.addKeyword("ski");
-		 * adRequest.setTesting(true); mAdView.loadAd(adRequest);
-		 */
 	}
 
 	class PreviewListener implements OnTouchListener {
@@ -110,18 +107,24 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 		if (!mDialogPaused) {
 			mSurfaceRenderer.resume();
 		}
-		/*
-		 * if (mGameSurfaceView.isSurfaceCreated() && !mDialogPaused) {
-		 * Log.d("dade", "DOPICEEEEEEEEEE"); mSurfaceRenderer.resume(); }
-		 */
 	}
 
 	@Override
 	public boolean onTouch(View v, MotionEvent me) {
+		if (mSurfaceRenderer.isSolved())
+			return true;
 		mSurfaceRenderer.onTouch(me);
 		if (mSurfaceRenderer.isSolved()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			WinDialog dialog = new WinDialog();
 			dialog.show(getSupportFragmentManager(), "WinDialogFragment");
+			writeToDatabase(mSurfaceRenderer.getSolveTime(),
+					mSurfaceRenderer.getMovesCount());
 		}
 		return true;
 	}
@@ -177,4 +180,25 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 			tvTime.setText(time);
 		}
 	}
+
+	private void writeToDatabase(String solveTime, int movesCount) {
+		HighscoreDbHelper dbHelper = new HighscoreDbHelper(this);
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		Intent intent = getIntent();
+		int choice = intent.getIntExtra("CHOICE", -1);
+		if (choice == ImageUtils.PHONE_GALLERY) {
+			values.put(HighscoreEntry.COLUMN_NAME_IS_GALLERY_PIC, 1);
+			values.put(HighscoreEntry.COLUMN_NAME_PIC_FILENAME,
+					intent.getStringExtra("PICTURE"));
+		} else {
+			values.put(HighscoreEntry.COLUMN_NAME_IS_GALLERY_PIC, 0);
+			values.put(HighscoreEntry.COLUMN_NAME_PIC_RES_ID,
+					intent.getIntExtra("THUMBNAIL_ID", -1));
+		}
+		values.put("moves_" + mDifficulty, movesCount);
+		values.put("time_" + mDifficulty, movesCount);
+		db.insert(HighscoreEntry.TABLE_NAME, null, values);
+	}
+
 }

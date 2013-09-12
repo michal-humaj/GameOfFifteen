@@ -49,6 +49,8 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	private int mDataColumnIndex;
 
 	private GalleryAdapter mGalleryAdapter;
+	private PictureAdapter mPictureAdapter;
+	private SymbolAdapter mSymbolAdapter;
 	private GalleryLoader mGalleryLoader;
 	private PictureLoader mPictureLoader;
 
@@ -100,7 +102,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 
 	class PictureAdapter extends BaseAdapter {
 
-		private final Integer[] thumbIDs = { R.drawable.t001, R.drawable.t002,
+		public final Integer[] thumbIDs = { R.drawable.t001, R.drawable.t002,
 				R.drawable.t003, R.drawable.t004, R.drawable.t005,
 				R.drawable.t006, R.drawable.t007, R.drawable.t008,
 				R.drawable.t009, R.drawable.t010, R.drawable.t011,
@@ -279,6 +281,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra("CHOICE", ImageUtils.DEFAULT_PICTURE);
+				intent.putExtra("THUMBNAIL_ID", mPictureAdapter.thumbIDs[position]);
 				intent.putExtra("PICTURE", position);
 				intent.putExtra("DIFFICULTY", mDifficulty);
 				startActivity(intent);
@@ -303,15 +306,18 @@ public class ChoosePictureActivity extends FragmentActivity implements
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra("CHOICE", ImageUtils.SYMBOL);
+				intent.putExtra("THUMBNAIL_ID", mPictureAdapter.thumbIDs[position]);
 				intent.putExtra("PICTURE", position);
 				intent.putExtra("DIFFICULTY", mDifficulty);
 				startActivity(intent);
 			}
 		});
 		mGalleryAdapter = new GalleryAdapter(this, null, 0);
+		mPictureAdapter = new PictureAdapter();
+		mSymbolAdapter = new SymbolAdapter();
 		gvGallery.setAdapter(mGalleryAdapter);
-		gvPictures.setAdapter(new PictureAdapter());
-		gvSymbols.setAdapter(new SymbolAdapter());
+		gvPictures.setAdapter(mPictureAdapter);
+		gvSymbols.setAdapter(mSymbolAdapter);
 	}
 
 	private void setThumbWidth() {

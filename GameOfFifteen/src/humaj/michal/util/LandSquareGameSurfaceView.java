@@ -2,7 +2,6 @@ package humaj.michal.util;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import humaj.michal.gameoffifteen.SquareGameSurfaceView;
 
 public class LandSquareGameSurfaceView extends SquareGameSurfaceView {
 

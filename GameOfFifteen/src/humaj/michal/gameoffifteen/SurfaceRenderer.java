@@ -193,8 +193,9 @@ public class SurfaceRenderer implements Runnable {
 				mEmptyTileY = j;
 			}
 		} while (i != x || j != y);
-		if (!mIsSolved && checkIfSolved()) {
+		if (checkIfSolved()) {
 			mIsSolved = true;
+			mTimer.pause();
 		}
 	}
 
@@ -206,7 +207,13 @@ public class SurfaceRenderer implements Runnable {
 		mTimer.setHandler(handler);
 	}
 	
+	public int getMovesCount(){
+		return mMoves;
+	}
 	
+	public String getSolveTime(){
+		return mTimer.getFormattedTime();
+	}	
 
 	public void shuffleTiles() {
 		Thread t = new Thread() {
@@ -221,7 +228,7 @@ public class SurfaceRenderer implements Runnable {
 				byte previousDirection = -1;
 				int x = -1;
 				int y = -1;
-				int shuffleCount = (int) Math.pow(mDifficulty, 4) / 7 + 30;
+				int shuffleCount = 3;//(int) Math.pow(mDifficulty, 4) / 7 + 30;
 				Tile.setNumFrames(8 - mDifficulty);
 				for (int i = 0; i < shuffleCount; i++) {
 					Rect to = ImageUtils.getRectForTile(new Rect(),
