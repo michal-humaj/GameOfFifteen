@@ -122,6 +122,11 @@ public class MainActivity extends Activity {
 		startActivity(intent);
 	}
 
+	public void onHighscore(View v){
+		Intent intent = new Intent(this, HighscoreActivity.class);
+		startActivity(intent);
+	}
+	
 	public void onDiffChanged(View v) {
 		checkBox3x3.setChecked(false);
 		checkBox4x4.setChecked(false);

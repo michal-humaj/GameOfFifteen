@@ -1,7 +1,6 @@
 package humaj.michal.activity;
 
 import humaj.michal.R;
-import humaj.michal.gameoffifteen.HighscoreContract;
 import humaj.michal.gameoffifteen.HighscoreContract.HighscoreEntry;
 import humaj.michal.gameoffifteen.HighscoreDbHelper;
 import humaj.michal.gameoffifteen.SurfaceRenderer;
@@ -14,6 +13,7 @@ import humaj.michal.util.ImageUtils;
 import humaj.michal.util.SquareGameSurfaceView;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -22,6 +22,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,7 +33,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class GameActivity extends FragmentActivity implements OnTouchListener,
-		BackDialogListener {
+		BackDialogListener, LoaderManager.LoaderCallbacks<Cursor> {
 
 	private SquareGameSurfaceView mGameSurfaceView;
 	private SurfaceRenderer mSurfaceRenderer;
@@ -48,7 +50,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 		mDifficulty = intent.getIntExtra("DIFFICULTY", -1);
 		Object config = getLastCustomNonConfigurationInstance();
 		if (config != null) {
-			mSurfaceRenderer = (SurfaceRenderer) config;
+			mSurfaceRenderer = (SurfaceRenderer) config;			
 			mSurfaceRenderer.setTvMoves((TextView) findViewById(R.id.tvMoves));
 			mSurfaceRenderer.setTimeHandler(new TimeHandler(Looper
 					.getMainLooper(), (TextView) findViewById(R.id.tvTime)));
@@ -199,6 +201,24 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 		values.put("moves_" + mDifficulty, movesCount);
 		values.put("time_" + mDifficulty, movesCount);
 		db.insert(HighscoreEntry.TABLE_NAME, null, values);
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -63,6 +63,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:layout_toRightOf="@id/btnChoosePicture"
+        android:onClick="onHighscore"
         android:text="Highscore" />
 
     <humaj.michal.util.TiledSquareImageView
