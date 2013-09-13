@@ -49,8 +49,6 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	private int mDataColumnIndex;
 
 	private GalleryAdapter mGalleryAdapter;
-	private PictureAdapter mPictureAdapter;
-	private SymbolAdapter mSymbolAdapter;
 	private GalleryLoader mGalleryLoader;
 	private PictureLoader mPictureLoader;
 
@@ -281,7 +279,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra("CHOICE", ImageUtils.DEFAULT_PICTURE);
-				intent.putExtra("THUMBNAIL_ID", mPictureAdapter.thumbIDs[position]);
+				intent.putExtra("THUMBNAIL_ID", ImageUtils.pictureThumbIDs[position]);
 				intent.putExtra("PICTURE", position);
 				intent.putExtra("DIFFICULTY", mDifficulty);
 				startActivity(intent);
@@ -306,18 +304,16 @@ public class ChoosePictureActivity extends FragmentActivity implements
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra("CHOICE", ImageUtils.SYMBOL);
-				intent.putExtra("THUMBNAIL_ID", mPictureAdapter.thumbIDs[position]);
+				intent.putExtra("THUMBNAIL_ID", ImageUtils.symbolThumbIDs[position]);
 				intent.putExtra("PICTURE", position);
 				intent.putExtra("DIFFICULTY", mDifficulty);
 				startActivity(intent);
 			}
 		});
-		mGalleryAdapter = new GalleryAdapter(this, null, 0);
-		mPictureAdapter = new PictureAdapter();
-		mSymbolAdapter = new SymbolAdapter();
+		mGalleryAdapter = new GalleryAdapter(this, null, 0);		
 		gvGallery.setAdapter(mGalleryAdapter);
-		gvPictures.setAdapter(mPictureAdapter);
-		gvSymbols.setAdapter(mSymbolAdapter);
+		gvPictures.setAdapter(new PictureAdapter());
+		gvSymbols.setAdapter(new SymbolAdapter());
 	}
 
 	private void setThumbWidth() {

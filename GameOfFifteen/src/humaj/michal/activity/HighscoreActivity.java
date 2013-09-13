@@ -1,20 +1,24 @@
 package humaj.michal.activity;
 
 import humaj.michal.R;
-import humaj.michal.gameoffifteen.HighscoreContract;
+import humaj.michal.gameoffifteen.HighscoreContract.HighscoreEntry;
+import humaj.michal.gameoffifteen.HighscoreDbHelper;
 import humaj.michal.uilogic.HighscoreRowWrapper;
+import humaj.michal.util.ImageUtils;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+
+import com.commonsware.cwac.loaderex.acl.SQLiteCursorLoader;
 
 public class HighscoreActivity extends FragmentActivity implements
 		LoaderManager.LoaderCallbacks<Cursor> {
@@ -28,9 +32,10 @@ public class HighscoreActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_highscore);
-
-		// getSupportLoaderManager().initLoader(HIGHSCORE_LOADER, null, this);
-
+		getSupportLoaderManager().initLoader(HIGHSCORE_LOADER, null, this);
+		ListView listView = (ListView) findViewById(R.id.listViewHighscore);
+		mAdapter = new HighscoreAdapter(this, null, 0);
+		listView.setAdapter(mAdapter);
 	}
 
 	class HighscoreAdapter extends CursorAdapter {
@@ -42,6 +47,60 @@ public class HighscoreActivity extends FragmentActivity implements
 		@Override
 		public void bindView(View row, Context context, Cursor cursor) {
 			HighscoreRowWrapper wrapper = (HighscoreRowWrapper) row.getTag();
+			int colIndex = cursor
+					.getColumnIndex(HighscoreEntry.COLUMN_NAME_IS_GALLERY_PIC);
+			int isGalleryPic = cursor.getInt(colIndex);
+			if (isGalleryPic == 1) {
+				colIndex = cursor.getColumnIndex(HighscoreEntry.COLUMN_NAME_PIC_FILENAME);				
+				String imagePath = cursor.getString(colIndex);
+				Bitmap b = ImageUtils.decodeSampledBitmapFromFile(imagePath, 107);
+				wrapper.getIv().setImageBitmap(b);
+			} else {
+				colIndex = cursor
+						.getColumnIndex(HighscoreEntry.COLUMN_NAME_PIC_RES_ID);
+				int thumbID = cursor.getInt(colIndex);
+				wrapper.getIv().setImageResource(thumbID);
+			}
+			colIndex = cursor
+					.getColumnIndex(HighscoreEntry.COLUMN_NAME_3x3_TIME);
+			String time = cursor.getString(colIndex);
+			wrapper.getTvTime3x3().setText(time);
+			
+			colIndex = cursor
+					.getColumnIndex(HighscoreEntry.COLUMN_NAME_4x4_TIME);
+			time = cursor.getString(colIndex);
+			wrapper.getTvTime4x4().setText(time);
+			
+			colIndex = cursor
+					.getColumnIndex(HighscoreEntry.COLUMN_NAME_5x5_TIME);
+			time = cursor.getString(colIndex);
+			wrapper.getTvTime5x5().setText(time);
+			
+			colIndex = cursor
+					.getColumnIndex(HighscoreEntry.COLUMN_NAME_6x6_TIME);
+			time = cursor.getString(colIndex);
+			wrapper.getTvTime6x6().setText(time);
+			
+			colIndex = cursor
+					.getColumnIndex(HighscoreEntry.COLUMN_NAME_3x3_MOVES);
+			int moves = cursor.getInt(colIndex);
+			wrapper.getTvMoves3x3().setText(moves == 0 ? "" : moves + "");
+			
+			colIndex = cursor
+					.getColumnIndex(HighscoreEntry.COLUMN_NAME_4x4_MOVES);
+			moves = cursor.getInt(colIndex);
+			wrapper.getTvMoves4x4().setText(moves == 0 ? "" : moves + "");
+			
+			colIndex = cursor
+					.getColumnIndex(HighscoreEntry.COLUMN_NAME_5x5_MOVES);
+			moves = cursor.getInt(colIndex);
+			wrapper.getTvMoves5x5().setText(moves == 0 ? "" : moves + "");
+			
+			colIndex = cursor
+					.getColumnIndex(HighscoreEntry.COLUMN_NAME_6x6_MOVES);
+			moves = cursor.getInt(colIndex);
+			wrapper.getTvMoves6x6().setText(moves == 0 ? "" : moves + "");
+
 		}
 
 		@Override
@@ -59,12 +118,11 @@ public class HighscoreActivity extends FragmentActivity implements
 	public Loader<Cursor> onCreateLoader(int loaderID, Bundle arg1) {
 		switch (loaderID) {
 		case HIGHSCORE_LOADER:
-			String[] projection = { MediaStore.Images.Media._ID,
-					MediaStore.Images.Media.DATA };
-			return new CursorLoader(this,
-					MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
-					null, null, null);
-			// TODO
+			HighscoreDbHelper dbHelper = new HighscoreDbHelper(this);
+			String rawQuery = "SELECT * FROM " + HighscoreEntry.TABLE_NAME;
+			SQLiteCursorLoader loader = new SQLiteCursorLoader(
+					getApplicationContext(), dbHelper, rawQuery, null);
+			return loader;
 		default:
 			return null;
 		}

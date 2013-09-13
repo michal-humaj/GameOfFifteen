@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_repeat"
+    android:background="#11FFBB33"
     android:orientation="horizontal" >
 
     <ImageView
@@ -66,28 +66,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="04:38" />
+            android:text="ERROR" />
 
         <TextView
             android:id="@+id/tv4x4Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="14:58" />
+            android:text="ERROR" />
 
         <TextView
             android:id="@+id/tv5x5Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="_" />
+            android:text="ERROR" />
 
         <TextView
             android:id="@+id/tv6x6Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="_" />
+            android:text="ERROR" />
     </LinearLayout>
 
     <LinearLayout
@@ -109,28 +109,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="227" />
+            android:text="ERROR" />
 
         <TextView
             android:id="@+id/tv4x4Moves"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="348" />
+            android:text="ERROR" />
 
         <TextView
             android:id="@+id/tv5x5Moves"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="_" />
+            android:text="ERROR" />
 
         <TextView
             android:id="@+id/tv6x6Moves"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="_" />
+            android:text="ERROR" />
     </LinearLayout>
 
 </LinearLayout>

@@ -27,6 +27,16 @@ public class ImageUtils {
 			{ R.drawable.s01d4, R.drawable.s02d4 },
 			{ R.drawable.s01d5, R.drawable.s02d5 },
 			{ R.drawable.s01d6, R.drawable.s02d6 } };
+	
+	public static final Integer[] pictureThumbIDs = { R.drawable.t001, R.drawable.t002,
+			R.drawable.t003, R.drawable.t004, R.drawable.t005,
+			R.drawable.t006, R.drawable.t007, R.drawable.t008,
+			R.drawable.t009, R.drawable.t010, R.drawable.t011,
+			R.drawable.t012, R.drawable.t013, R.drawable.t014,
+			R.drawable.t015, R.drawable.t016, R.drawable.t017,
+			R.drawable.t018, R.drawable.t019, R.drawable.t020, R.drawable.t021 };
+	
+	public static final Integer[] symbolThumbIDs = { R.drawable.st01, R.drawable.st02 };
 
 	public static final int DEFAULT_PICTURE = 1111;
 	public static final int PHONE_GALLERY = 2222;

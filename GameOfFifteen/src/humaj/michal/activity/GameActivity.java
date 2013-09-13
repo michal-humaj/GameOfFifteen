@@ -50,7 +50,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 		mDifficulty = intent.getIntExtra("DIFFICULTY", -1);
 		Object config = getLastCustomNonConfigurationInstance();
 		if (config != null) {
-			mSurfaceRenderer = (SurfaceRenderer) config;			
+			mSurfaceRenderer = (SurfaceRenderer) config;
 			mSurfaceRenderer.setTvMoves((TextView) findViewById(R.id.tvMoves));
 			mSurfaceRenderer.setTimeHandler(new TimeHandler(Looper
 					.getMainLooper(), (TextView) findViewById(R.id.tvTime)));
@@ -184,11 +184,28 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 	}
 
 	private void writeToDatabase(String solveTime, int movesCount) {
-		HighscoreDbHelper dbHelper = new HighscoreDbHelper(this);
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		ContentValues values = new ContentValues();
+		values.put("moves_" + mDifficulty, movesCount);
+		values.put("time_" + mDifficulty, solveTime);
+		HighscoreDbHelper dbHelper = new HighscoreDbHelper(this);
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		String[] projection = { "moves_" + mDifficulty, "time_" + mDifficulty };
+		Cursor c;
+		String selection;
+		String[] selectionArgs = new String[1];
 		Intent intent = getIntent();
 		int choice = intent.getIntExtra("CHOICE", -1);
+		if (choice == ImageUtils.PHONE_GALLERY) {
+			String imagePath = intent.getStringExtra("PICTURE");
+			selection = HighscoreEntry.COLUMN_NAME_PIC_FILENAME + " LIKE ?";
+			selectionArgs[0] = imagePath;
+		} else {
+			int thumbID = intent.getIntExtra("THUMBNAIL_ID", -1);
+			selection = HighscoreEntry.COLUMN_NAME_PIC_RES_ID + " LIKE ?";
+			selectionArgs[0] = String.valueOf(thumbID);
+		}
+		c = db.query(HighscoreEntry.TABLE_NAME, projection, selection,
+				selectionArgs, null, null, null);
 		if (choice == ImageUtils.PHONE_GALLERY) {
 			values.put(HighscoreEntry.COLUMN_NAME_IS_GALLERY_PIC, 1);
 			values.put(HighscoreEntry.COLUMN_NAME_PIC_FILENAME,
@@ -198,9 +215,20 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 			values.put(HighscoreEntry.COLUMN_NAME_PIC_RES_ID,
 					intent.getIntExtra("THUMBNAIL_ID", -1));
 		}
-		values.put("moves_" + mDifficulty, movesCount);
-		values.put("time_" + mDifficulty, movesCount);
-		db.insert(HighscoreEntry.TABLE_NAME, null, values);
+		if (c.getCount() == 0) {
+			SQLiteDatabase writeableDB = dbHelper.getWritableDatabase();
+			writeableDB.insert(HighscoreEntry.TABLE_NAME, null, values);
+			writeableDB.close();
+		} else {
+			c.moveToFirst();
+			int colIdex = c.getColumnIndex("moves_" + mDifficulty);
+			int highscoreMoves = c.getInt(colIdex);
+			if (movesCount < highscoreMoves || highscoreMoves == 0) {
+				db.update(HighscoreEntry.TABLE_NAME, values, selection,
+						selectionArgs);
+				db.close();
+			}
+		}
 	}
 
 	@Override
@@ -212,13 +240,13 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 	@Override
 	public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

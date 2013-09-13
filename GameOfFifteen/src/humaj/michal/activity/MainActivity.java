@@ -11,6 +11,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 
@@ -52,6 +53,8 @@ public class MainActivity extends Activity {
 			mIntent.putExtra("DIFFICULTY", mDifficulty);
 			bitmap = ImageUtils.decodeSampledBitmapFromResource(getResources(),
 					ImageUtils.mPictureIDs[randomIndex], mWidth);
+			mIntent.putExtra("THUMBNAIL_ID",
+					ImageUtils.pictureThumbIDs[randomIndex]);
 		}
 		bh.setBitmap(bitmap);
 		checkRightCheckBox();
@@ -118,15 +121,16 @@ public class MainActivity extends Activity {
 		} else {
 			intent.putExtra("THUMBNAIL_ID",
 					mIntent.getIntExtra("THUMBNAIL_ID", -1));
+			Log.d("THUMBNAI", mIntent.getIntExtra("THUMBNAIL_ID", -1) + "");
 		}
 		startActivity(intent);
 	}
 
-	public void onHighscore(View v){
+	public void onHighscore(View v) {
 		Intent intent = new Intent(this, HighscoreActivity.class);
 		startActivity(intent);
 	}
-	
+
 	public void onDiffChanged(View v) {
 		checkBox3x3.setChecked(false);
 		checkBox4x4.setChecked(false);
