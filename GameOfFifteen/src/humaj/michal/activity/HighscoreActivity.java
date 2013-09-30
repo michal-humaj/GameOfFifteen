@@ -51,10 +51,14 @@ public class HighscoreActivity extends FragmentActivity implements
 					.getColumnIndex(HighscoreEntry.COLUMN_NAME_IS_GALLERY_PIC);
 			int isGalleryPic = cursor.getInt(colIndex);
 			if (isGalleryPic == 1) {
-				colIndex = cursor.getColumnIndex(HighscoreEntry.COLUMN_NAME_PIC_FILENAME);				
+				colIndex = cursor
+						.getColumnIndex(HighscoreEntry.COLUMN_NAME_PIC_FILENAME);
 				String imagePath = cursor.getString(colIndex);
-				Bitmap b = ImageUtils.decodeSampledBitmapFromFile(imagePath, 107);
-				wrapper.getIv().setImageBitmap(b);
+				Bitmap b = ImageUtils.decodeSampledBitmapFromFile(imagePath,
+						ChoosePictureActivity.mThumbWidth);
+				if (b == null) {
+					wrapper.getIv().setImageBitmap(b);
+				}
 			} else {
 				colIndex = cursor
 						.getColumnIndex(HighscoreEntry.COLUMN_NAME_PIC_RES_ID);
@@ -65,37 +69,37 @@ public class HighscoreActivity extends FragmentActivity implements
 					.getColumnIndex(HighscoreEntry.COLUMN_NAME_3x3_TIME);
 			String time = cursor.getString(colIndex);
 			wrapper.getTvTime3x3().setText(time);
-			
+
 			colIndex = cursor
 					.getColumnIndex(HighscoreEntry.COLUMN_NAME_4x4_TIME);
 			time = cursor.getString(colIndex);
 			wrapper.getTvTime4x4().setText(time);
-			
+
 			colIndex = cursor
 					.getColumnIndex(HighscoreEntry.COLUMN_NAME_5x5_TIME);
 			time = cursor.getString(colIndex);
 			wrapper.getTvTime5x5().setText(time);
-			
+
 			colIndex = cursor
 					.getColumnIndex(HighscoreEntry.COLUMN_NAME_6x6_TIME);
 			time = cursor.getString(colIndex);
 			wrapper.getTvTime6x6().setText(time);
-			
+
 			colIndex = cursor
 					.getColumnIndex(HighscoreEntry.COLUMN_NAME_3x3_MOVES);
 			int moves = cursor.getInt(colIndex);
 			wrapper.getTvMoves3x3().setText(moves == 0 ? "" : moves + "");
-			
+
 			colIndex = cursor
 					.getColumnIndex(HighscoreEntry.COLUMN_NAME_4x4_MOVES);
 			moves = cursor.getInt(colIndex);
 			wrapper.getTvMoves4x4().setText(moves == 0 ? "" : moves + "");
-			
+
 			colIndex = cursor
 					.getColumnIndex(HighscoreEntry.COLUMN_NAME_5x5_MOVES);
 			moves = cursor.getInt(colIndex);
 			wrapper.getTvMoves5x5().setText(moves == 0 ? "" : moves + "");
-			
+
 			colIndex = cursor
 					.getColumnIndex(HighscoreEntry.COLUMN_NAME_6x6_MOVES);
 			moves = cursor.getInt(colIndex);
@@ -122,7 +126,7 @@ public class HighscoreActivity extends FragmentActivity implements
 			String rawQuery = "SELECT * FROM " + HighscoreEntry.TABLE_NAME;
 			SQLiteCursorLoader loader = new SQLiteCursorLoader(
 					getApplicationContext(), dbHelper, rawQuery, null);
-			
+
 			return loader;
 		default:
 			return null;

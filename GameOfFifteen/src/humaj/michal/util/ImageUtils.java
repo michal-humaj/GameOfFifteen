@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
@@ -36,7 +37,7 @@ public class ImageUtils {
 			R.drawable.t018, R.drawable.t019, R.drawable.t020, R.drawable.t021 };
 
 	public static final Integer[] symbolThumbIDs = { R.drawable.st01,
-			R.drawable.st02,  R.drawable.st03 };
+			R.drawable.st02, R.drawable.st03 };
 
 	public static final String PIC_TYPE = "PIC_TYPE";
 	public static final String PICTURE = "PICTURE";
@@ -81,7 +82,21 @@ public class ImageUtils {
 				: options.outWidth;
 		options.inSampleSize = Math.round((float) bitmapDimension / reqWidth);
 		options.inJustDecodeBounds = false;
-		return BitmapFactory.decodeResource(res, resId, options);
+		Bitmap b = BitmapFactory.decodeResource(res, resId, options);
+		int width = b.getWidth();
+		int height = b.getHeight();
+		float scaleWidth;
+		float scaleHeight;
+		if (width > height) {
+			scaleWidth = ((float) reqWidth) / width;
+			scaleHeight = scaleWidth;
+		} else {
+			scaleHeight = ((float) reqWidth) / height;
+			scaleWidth = scaleHeight;
+		}
+		Matrix matrix = new Matrix();
+		matrix.postScale(scaleWidth, scaleHeight);
+		return Bitmap.createBitmap(b, 0, 0, width, height, matrix, false);
 	}
 
 	public static Bitmap decodeSampledBitmapFromFile(String fileName,
@@ -100,7 +115,14 @@ public class ImageUtils {
 		final Rect rect = new Rect(x1, y1, x1 + regionWidth, y1 + regionWidth);
 		final BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inSampleSize = Math.round((float) regionWidth / reqWidth);
-		return decoder.decodeRegion(rect, options);
+		Bitmap b = decoder.decodeRegion(rect, options);
+		width = b.getWidth();
+		height = b.getHeight();
+		float scaleWidth = ((float) reqWidth) / width;
+		float scaleHeight = scaleWidth;
+		Matrix matrix = new Matrix();
+		matrix.postScale(scaleWidth, scaleHeight);
+		return Bitmap.createBitmap(b, 0, 0, width, height, matrix, false);
 	}
 
 	public static Bitmap getBitmapFromIntent(Intent intent, Resources res,

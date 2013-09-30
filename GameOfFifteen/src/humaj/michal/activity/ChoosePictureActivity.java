@@ -41,7 +41,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	public static final String PICS_UNLOCKED = "PICS_UNLOCKED";
 	public static final String PREFS_NAME = "prefs";
 	public static final int CURSOR_LOADER = 0;
-	private static final int THUMB_WIDTH_IN_DP = 105;
+	public static final int THUMB_WIDTH_IN_DP = 105;
 
 	public static int mPicsUnlocked;
 
@@ -49,7 +49,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 
 	private ThumbnailHandler mHandler;
 
-	private int mThumbWidth;
+	public static int mThumbWidth;
 	private Bitmap mPlaceHolderBitmap = null;
 
 	private Cursor mCursor;
