@@ -66,6 +66,8 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 
 			mSurfaceRenderer.setMovesBest(mMovesBest);
 		}
+		mSurfaceRenderer.getTvMoves().setText(
+				mSurfaceRenderer.getMovesCount() + mMovesBest);
 		Bitmap bitmap = BitmapHolder.getInstance().getBitmap();
 		mGameSurfaceView = (SquareGameSurfaceView) findViewById(R.id.gameSurfaceView);
 		mGameSurfaceView.setSurfaceRenderer(mSurfaceRenderer);
@@ -230,16 +232,19 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 		}
 		c = db.query(HighscoreEntry.TABLE_NAME, projection, selection,
 				selectionArgs, null, null, null);
-		if (c.getCount() == 0) {
-			mTimeBest = "";
-			mMovesBest = "";
-		} else {
+		mTimeBest = "";
+		mMovesBest = "";
+		if (c.getCount() != 0) {
 			c.moveToFirst();
 			int columnIndex = c.getColumnIndex("moves_" + mDifficulty);
-			mMovesBest = "  Best: " + c.getInt(columnIndex);
+			if (c.getInt(columnIndex) != 0) {
+				mMovesBest = "  Best: " + c.getInt(columnIndex);
+			}
 			columnIndex = c.getColumnIndex("time_" + mDifficulty);
-			mTimeBest = "  Best: " + c.getString(columnIndex);
-		}
+			if (c.getString(columnIndex) != null) {
+				mTimeBest = "  Best: " + c.getString(columnIndex);
+			}
+		}		
 		db.close();
 	}
 }

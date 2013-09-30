@@ -205,6 +205,10 @@ public class SurfaceRenderer implements Runnable {
 		this.mTvMoves = mTvMoves;
 	}
 
+	public TextView getTvMoves(){
+		return mTvMoves;		
+	}
+	
 	public void setTimeHandler(TimeHandler handler) {
 		mTimer.setHandler(handler);
 	}

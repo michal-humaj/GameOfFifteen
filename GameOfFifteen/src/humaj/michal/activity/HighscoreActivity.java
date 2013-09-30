@@ -122,6 +122,7 @@ public class HighscoreActivity extends FragmentActivity implements
 			String rawQuery = "SELECT * FROM " + HighscoreEntry.TABLE_NAME;
 			SQLiteCursorLoader loader = new SQLiteCursorLoader(
 					getApplicationContext(), dbHelper, rawQuery, null);
+			
 			return loader;
 		default:
 			return null;
@@ -137,5 +138,6 @@ public class HighscoreActivity extends FragmentActivity implements
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
 		mAdapter.changeCursor(null);
+		arg0.reset();
 	}
 }
