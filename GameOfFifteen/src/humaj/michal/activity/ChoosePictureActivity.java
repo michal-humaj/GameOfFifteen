@@ -8,6 +8,8 @@ import humaj.michal.util.ImageUtils;
 import humaj.michal.util.SquareImageView;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,6 +25,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.util.LruCache;
 import android.support.v4.widget.CursorAdapter;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -35,13 +38,17 @@ import android.widget.TabHost.TabSpec;
 public class ChoosePictureActivity extends FragmentActivity implements
 		LoaderManager.LoaderCallbacks<Cursor> {
 
+	public static final String PICS_UNLOCKED = "PICS_UNLOCKED";
+	public static final String PREFS_NAME = "prefs";
 	public static final int CURSOR_LOADER = 0;
 	private static final int THUMB_WIDTH_IN_DP = 90;
-	
+
+	public static int mPicsUnlocked;
+
 	private int mDifficulty;
 
 	private ThumbnailHandler mHandler;
-	
+
 	private int mThumbWidth;
 	private Bitmap mPlaceHolderBitmap = null;
 
@@ -53,11 +60,12 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	private PictureLoader mPictureLoader;
 
 	private LruCache<String, Bitmap> mGalleryCache;
+	private GridView mGvPictures;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_choose_picture);
+		setContentView(R.layout.activity_choose_picture);		
 		mDifficulty = getIntent().getIntExtra(ImageUtils.DIFFICULTY, -1);
 		mHandler = new ThumbnailHandler(Looper.getMainLooper());
 		getSupportLoaderManager().initLoader(CURSOR_LOADER, null, this);
@@ -81,9 +89,18 @@ public class ChoosePictureActivity extends FragmentActivity implements
 		mGalleryLoader = new GalleryLoader(this, mHandler, mThumbWidth);
 		mPictureLoader = new PictureLoader(getResources(), mHandler);
 		mGalleryLoader.start();
-		mPictureLoader.start();
+		mPictureLoader.start();		
 		super.onStart();
-	}
+		SharedPreferences preferences = getSharedPreferences(PREFS_NAME, 0);
+		mPicsUnlocked = preferences.getInt(PICS_UNLOCKED, -1);
+		if (mPicsUnlocked == -1) {
+			Editor editor = preferences.edit();
+			editor.putInt(PICS_UNLOCKED, 50);
+			editor.commit();		
+			mPicsUnlocked = 4;
+		}
+		mGvPictures.setAdapter(new PictureAdapter());
+	}		
 	
 	public static class ThumbnailHandler extends Handler {
 
@@ -106,14 +123,16 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				R.drawable.t009, R.drawable.t010, R.drawable.t011,
 				R.drawable.t012, R.drawable.t013, R.drawable.t014,
 				R.drawable.t015, R.drawable.t016, R.drawable.t017,
-				R.drawable.t018, R.drawable.t019, R.drawable.t020, R.drawable.t021 };
+				R.drawable.t018, R.drawable.t019, R.drawable.t020,
+				R.drawable.t021 };
 
 		public PictureAdapter() {
 		}
 
 		@Override
 		public int getCount() {
-			return thumbIDs.length;
+			return mPicsUnlocked < thumbIDs.length ? mPicsUnlocked
+					: thumbIDs.length;
 		}
 
 		@Override
@@ -128,6 +147,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup container) {
+			Log.d("asdasd", mPicsUnlocked + "");
 			SquareImageView imageView;
 			if (convertView == null) {
 				imageView = new SquareImageView(getApplicationContext());
@@ -152,7 +172,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
-			SquareImageView imageView = (SquareImageView) view;			
+			SquareImageView imageView = (SquareImageView) view;
 			String fileName = cursor.getString(mDataColumnIndex);
 			Bitmap bitmap = getBitmapFromMemCache(fileName);
 			if (bitmap == null) {
@@ -206,7 +226,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 			} else {
 				imageView = (SquareImageView) convertView;
 			}
-			imageView.setImageResource(thumbIDs[position]);			
+			imageView.setImageResource(thumbIDs[position]);
 			return imageView;
 		}
 	}
@@ -264,22 +284,23 @@ public class ChoosePictureActivity extends FragmentActivity implements
 
 		spec = tabs.newTabSpec("tag3");
 		spec.setContent(R.id.gvSymbols);
-		spec.setIndicator(getString(R.string.tabSymbols));		
+		spec.setIndicator(getString(R.string.tabSymbols));
 		tabs.addTab(spec);
 	}
 
 	private void setupGridViews() {
-		GridView gvPictures = (GridView) findViewById(R.id.gvDefaultPictures);
+		mGvPictures = (GridView) findViewById(R.id.gvDefaultPictures);
 		GridView gvGallery = (GridView) findViewById(R.id.gvPhoneGallery);
 		GridView gvSymbols = (GridView) findViewById(R.id.gvSymbols);
-		gvPictures.setOnItemClickListener(new OnItemClickListener() {
+		mGvPictures.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View v,
 					int position, long id) {
 				Intent intent = new Intent(getApplicationContext(),
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra(ImageUtils.PIC_TYPE, ImageUtils.DEFAULT_PICTURE);
-				intent.putExtra(ImageUtils.THUMBNAIL_ID, ImageUtils.pictureThumbIDs[position]);
+				intent.putExtra(ImageUtils.THUMBNAIL_ID,
+						ImageUtils.pictureThumbIDs[position]);
 				intent.putExtra(ImageUtils.PICTURE, position);
 				intent.putExtra(ImageUtils.DIFFICULTY, mDifficulty);
 				startActivity(intent);
@@ -292,11 +313,12 @@ public class ChoosePictureActivity extends FragmentActivity implements
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra(ImageUtils.PIC_TYPE, ImageUtils.PHONE_GALLERY);
-				intent.putExtra(ImageUtils.PICTURE, mCursor.getString(mDataColumnIndex));
+				intent.putExtra(ImageUtils.PICTURE,
+						mCursor.getString(mDataColumnIndex));
 				intent.putExtra(ImageUtils.DIFFICULTY, mDifficulty);
 				startActivity(intent);
 			}
-		});		
+		});
 		gvSymbols.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View v,
 					int position, long id) {
@@ -304,15 +326,16 @@ public class ChoosePictureActivity extends FragmentActivity implements
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 				intent.putExtra(ImageUtils.PIC_TYPE, ImageUtils.SYMBOL);
-				intent.putExtra(ImageUtils.THUMBNAIL_ID, ImageUtils.symbolThumbIDs[position]);
+				intent.putExtra(ImageUtils.THUMBNAIL_ID,
+						ImageUtils.symbolThumbIDs[position]);
 				intent.putExtra(ImageUtils.PICTURE, position);
 				intent.putExtra(ImageUtils.DIFFICULTY, mDifficulty);
 				startActivity(intent);
 			}
 		});
-		mGalleryAdapter = new GalleryAdapter(this, null, 0);		
+		mGalleryAdapter = new GalleryAdapter(this, null, 0);
 		gvGallery.setAdapter(mGalleryAdapter);
-		gvPictures.setAdapter(new PictureAdapter());
+		mGvPictures.setAdapter(new PictureAdapter());
 		gvSymbols.setAdapter(new SymbolAdapter());
 	}
 

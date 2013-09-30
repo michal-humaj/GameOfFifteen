@@ -12,6 +12,8 @@ import humaj.michal.util.BitmapHolder;
 import humaj.michal.util.ImageUtils;
 import humaj.michal.util.SquareGameSurfaceView;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -141,6 +143,23 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 					mSurfaceRenderer.getSolveTime(),
 					mSurfaceRenderer.getMovesCount());
 
+			if (isNewHighscore) {
+				SharedPreferences preferences = getSharedPreferences(
+						ChoosePictureActivity.PREFS_NAME, 0);
+				int picsUnlocked = preferences.getInt(
+						ChoosePictureActivity.PICS_UNLOCKED, -1);
+				if (picsUnlocked == -1) {
+					Editor editor = preferences.edit();
+					editor.putInt(ChoosePictureActivity.PICS_UNLOCKED, 51);
+					editor.commit();
+				} else {
+					Editor editor = preferences.edit();
+					editor.putInt(ChoosePictureActivity.PICS_UNLOCKED,
+							++picsUnlocked);
+					editor.commit();
+				}
+			}
+
 			WinDialog dialog = WinDialog.newInstance(
 					mSurfaceRenderer.getSolveTime(),
 					mSurfaceRenderer.getMovesCount(), isNewHighscore);
@@ -244,7 +263,7 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 			if (c.getString(columnIndex) != null) {
 				mTimeBest = "  Best: " + c.getString(columnIndex);
 			}
-		}		
+		}
 		db.close();
 	}
 }
