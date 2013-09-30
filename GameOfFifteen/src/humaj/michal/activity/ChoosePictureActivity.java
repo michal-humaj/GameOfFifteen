@@ -41,7 +41,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	public static final String PICS_UNLOCKED = "PICS_UNLOCKED";
 	public static final String PREFS_NAME = "prefs";
 	public static final int CURSOR_LOADER = 0;
-	private static final int THUMB_WIDTH_IN_DP = 90;
+	private static final int THUMB_WIDTH_IN_DP = 105;
 
 	public static int mPicsUnlocked;
 
@@ -65,7 +65,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_choose_picture);		
+		setContentView(R.layout.activity_choose_picture);
 		mDifficulty = getIntent().getIntExtra(ImageUtils.DIFFICULTY, -1);
 		mHandler = new ThumbnailHandler(Looper.getMainLooper());
 		getSupportLoaderManager().initLoader(CURSOR_LOADER, null, this);
@@ -89,19 +89,19 @@ public class ChoosePictureActivity extends FragmentActivity implements
 		mGalleryLoader = new GalleryLoader(this, mHandler, mThumbWidth);
 		mPictureLoader = new PictureLoader(getResources(), mHandler);
 		mGalleryLoader.start();
-		mPictureLoader.start();		
+		mPictureLoader.start();
 		super.onStart();
 		SharedPreferences preferences = getSharedPreferences(PREFS_NAME, 0);
 		mPicsUnlocked = preferences.getInt(PICS_UNLOCKED, -1);
 		if (mPicsUnlocked == -1) {
 			Editor editor = preferences.edit();
 			editor.putInt(PICS_UNLOCKED, 50);
-			editor.commit();		
+			editor.commit();
 			mPicsUnlocked = 4;
 		}
 		mGvPictures.setAdapter(new PictureAdapter());
-	}		
-	
+	}
+
 	public static class ThumbnailHandler extends Handler {
 
 		public ThumbnailHandler(Looper mainLooper) {
@@ -197,7 +197,8 @@ public class ChoosePictureActivity extends FragmentActivity implements
 
 	class SymbolAdapter extends BaseAdapter {
 
-		private final Integer[] thumbIDs = { R.drawable.st01, R.drawable.st02 };
+		private final Integer[] thumbIDs = { R.drawable.st01, R.drawable.st02,
+				R.drawable.st03 };
 
 		public SymbolAdapter() {
 		}

@@ -4,15 +4,19 @@ import humaj.michal.R;
 import humaj.michal.util.BitmapHolder;
 import humaj.michal.util.ImageUtils;
 import humaj.michal.util.TiledSquareImageView;
+
 import java.util.Random;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.CheckBox;
 
 public class MainActivity extends Activity {
@@ -62,11 +66,14 @@ public class MainActivity extends Activity {
 		mIV.setDifficulty(mDifficulty);
 		mIV.setBorderWidth(mBorderWidth);
 
-		/*
-		 * AdView mAdView = (AdView) findViewById(R.id.ad); AdRequest adRequest
-		 * = new AdRequest(); adRequest.addKeyword("sport goods");
-		 * adRequest.setTesting(true); mAdView.loadAd(adRequest);
-		 */
+		WebView webView = (WebView) findViewById(R.id.leadboltAd);
+		if (webView != null) {
+			webView.getSettings().setJavaScriptEnabled(true);
+			webView.setBackgroundColor(Color.TRANSPARENT);
+			String html = "<html><body style='margin:0;padding:0;'><script type='text/javascript' src='http://ad.leadboltads.net/show_app_ad.js?section_id=252524115'></script></body></html>";
+			webView.loadData(html, "text/html", "utf-8");
+		}
+
 	}
 
 	@Override
@@ -117,11 +124,13 @@ public class MainActivity extends Activity {
 		int choice = mIntent.getIntExtra(ImageUtils.PIC_TYPE, -1);
 		intent.putExtra(ImageUtils.PIC_TYPE, choice);
 		if (choice == ImageUtils.PHONE_GALLERY) {
-			intent.putExtra(ImageUtils.PICTURE, mIntent.getStringExtra(ImageUtils.PICTURE));
+			intent.putExtra(ImageUtils.PICTURE,
+					mIntent.getStringExtra(ImageUtils.PICTURE));
 		} else {
 			intent.putExtra(ImageUtils.THUMBNAIL_ID,
 					mIntent.getIntExtra(ImageUtils.THUMBNAIL_ID, -1));
-			Log.d("THUMBNAI", mIntent.getIntExtra(ImageUtils.THUMBNAIL_ID, -1) + "");
+			Log.d("THUMBNAI", mIntent.getIntExtra(ImageUtils.THUMBNAIL_ID, -1)
+					+ "");
 		}
 		startActivity(intent);
 	}

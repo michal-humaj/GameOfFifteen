@@ -23,10 +23,10 @@ public class ImageUtils {
 			R.drawable.p018, R.drawable.p019, R.drawable.p020, R.drawable.p021 };
 
 	public static final Integer[][] mSymbolsIDs = {
-			{ R.drawable.s01d3, R.drawable.s02d3 },
-			{ R.drawable.s01d4, R.drawable.s02d4 },
-			{ R.drawable.s01d5, R.drawable.s02d5 },
-			{ R.drawable.s01d6, R.drawable.s02d6 } };
+			{ R.drawable.s01d3, R.drawable.s02d3, R.drawable.s03d3 },
+			{ R.drawable.s01d4, R.drawable.s02d4, R.drawable.s03d4 },
+			{ R.drawable.s01d5, R.drawable.s02d5, R.drawable.s03d5 },
+			{ R.drawable.s01d6, R.drawable.s02d6, R.drawable.s03d6 } };
 
 	public static final Integer[] pictureThumbIDs = { R.drawable.t001,
 			R.drawable.t002, R.drawable.t003, R.drawable.t004, R.drawable.t005,
@@ -36,15 +36,14 @@ public class ImageUtils {
 			R.drawable.t018, R.drawable.t019, R.drawable.t020, R.drawable.t021 };
 
 	public static final Integer[] symbolThumbIDs = { R.drawable.st01,
-			R.drawable.st02 };
-	
+			R.drawable.st02,  R.drawable.st03 };
+
 	public static final String PIC_TYPE = "PIC_TYPE";
 	public static final String PICTURE = "PICTURE";
 	public static final String THUMBNAIL_ID = "THUMBNAIL_ID";
 	public static final String DIFFICULTY = "DIFFICULTY";
 	public static final String BORDER_WIDTH = "BORDER_WIDTH";
 	public static final String WIDTH = "WIDTH";
-	
 
 	public static final int DEFAULT_PICTURE = 1111;
 	public static final int PHONE_GALLERY = 2222;
@@ -53,7 +52,7 @@ public class ImageUtils {
 	private static Paint up;
 	private static Paint down;
 	private static Paint right;
-	private static Paint left;	
+	private static Paint left;
 
 	static {
 		up = new Paint();
@@ -102,7 +101,7 @@ public class ImageUtils {
 		final BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inSampleSize = Math.round((float) regionWidth / reqWidth);
 		return decoder.decodeRegion(rect, options);
-	}	
+	}
 
 	public static Bitmap getBitmapFromIntent(Intent intent, Resources res,
 			int width, int difficulty) {
@@ -132,8 +131,8 @@ public class ImageUtils {
 	}
 
 	public static void drawBorder(Canvas canvas, int x1, int y1, int x2,
-			int y2, int borderWidth) {		
-		
+			int y2, int borderWidth) {
+
 		for (int k = 0; k < borderWidth; k++) {
 			canvas.drawLine(x1 + k, y1 + k, x2 - 1 - k, y1 + k, up);
 		}

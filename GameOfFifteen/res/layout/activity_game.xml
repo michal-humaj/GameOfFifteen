@@ -5,6 +5,13 @@
     android:background="@drawable/layer_list_background"
     tools:context=".GameActivity" >
 
+    <WebView
+        android:id="@+id/leadboltAd"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+    
     <ImageView
         android:id="@+id/ivPreview"
         android:layout_width="94dp"

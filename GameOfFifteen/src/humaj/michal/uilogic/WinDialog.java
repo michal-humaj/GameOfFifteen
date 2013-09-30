@@ -1,5 +1,6 @@
 package humaj.michal.uilogic;
 
+import humaj.michal.activity.ChoosePictureActivity;
 import humaj.michal.activity.GameActivity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -11,6 +12,7 @@ public class WinDialog extends DialogFragment {
 	public static final String MOVES_COUNT = "MOVES_COUNT";
 	public static final String SOLVE_TIME = "SOLVE_TIME";
 	public static final String IS_NEW_HIGHSCORE = "IS_NEW_HIGHSCORE";
+	private static final int NUM_PICTURES = 100;
 
 	int mMovesCount;
 	String mSolveTime;
@@ -38,7 +40,7 @@ public class WinDialog extends DialogFragment {
 		String solveTime = bundle.getString(SOLVE_TIME);
 		int movesCount = bundle.getInt(MOVES_COUNT);
 		boolean isNewHighscore = bundle.getBoolean(IS_NEW_HIGHSCORE);
-		String imageUnlocked = isNewHighscore ? "You have unlocked new picture!" : "";
+		String imageUnlocked = isNewHighscore && ChoosePictureActivity.mPicsUnlocked < NUM_PICTURES ? "You have unlocked new picture!" : "";
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setMessage("Time:    " + solveTime + "\nMoves:  "
 				+ movesCount + "\n\n" + imageUnlocked);

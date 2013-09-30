@@ -17,6 +17,7 @@ import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,6 +28,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -82,6 +84,14 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 		mBtnPreview.setOnTouchListener(previewListener);
 		if (config == null)
 			mSurfaceRenderer.shuffleTiles();
+
+		WebView webView = (WebView) findViewById(R.id.leadboltAd);
+		if (webView != null) {
+			webView.getSettings().setJavaScriptEnabled(true);
+			webView.setBackgroundColor(Color.TRANSPARENT);
+			String html = "<html><body style='margin:0;padding:0;'><script type='text/javascript' src='http://ad.leadboltads.net/show_app_ad.js?section_id=252524115'></script></body></html>";
+			webView.loadData(html, "text/html", "utf-8");
+		}
 	}
 
 	class PreviewListener implements OnTouchListener {

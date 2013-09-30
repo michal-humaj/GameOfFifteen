@@ -52,9 +52,9 @@
         android:layout_marginTop="8dp"
         android:layout_toRightOf="@id/btnChoosePicture"
         android:background="@drawable/selector_button_background"
-        android:src="@drawable/selector_play"
+        android:onClick="onPlay"
         android:scaleType="fitXY"
-        android:onClick="onPlay" />
+        android:src="@drawable/selector_play" />
 
     <ImageButton
         android:id="@+id/btnHighscore"
@@ -66,9 +66,9 @@
         android:layout_marginTop="8dp"
         android:layout_toRightOf="@id/btnChoosePicture"
         android:background="@drawable/selector_button_background"
-        android:src="@drawable/selector_highscore"
+        android:onClick="onHighscore"
         android:scaleType="fitXY"
-        android:onClick="onHighscore" />
+        android:src="@drawable/selector_highscore" />
 
     <humaj.michal.util.TiledSquareImageView
         android:id="@+id/iv"
@@ -78,15 +78,11 @@
         android:layout_marginTop="8dp"
         android:scaleType="centerCrop" />
 
-    <!--
-         <com.google.ads.AdView
-        xmlns:googleads="http://schemas.android.com/apk/lib/com.google.ads"
-        android:id="@+id/ad"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+    <WebView
+        android:id="@+id/leadboltAd"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        googleads:adSize="BANNER"
-        googleads:adUnitId="ca-app-pub-7033939812012552/9040332422" />
-    -->
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
