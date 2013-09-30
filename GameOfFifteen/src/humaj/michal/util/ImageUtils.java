@@ -27,16 +27,24 @@ public class ImageUtils {
 			{ R.drawable.s01d4, R.drawable.s02d4 },
 			{ R.drawable.s01d5, R.drawable.s02d5 },
 			{ R.drawable.s01d6, R.drawable.s02d6 } };
-	
-	public static final Integer[] pictureThumbIDs = { R.drawable.t001, R.drawable.t002,
-			R.drawable.t003, R.drawable.t004, R.drawable.t005,
-			R.drawable.t006, R.drawable.t007, R.drawable.t008,
-			R.drawable.t009, R.drawable.t010, R.drawable.t011,
-			R.drawable.t012, R.drawable.t013, R.drawable.t014,
-			R.drawable.t015, R.drawable.t016, R.drawable.t017,
+
+	public static final Integer[] pictureThumbIDs = { R.drawable.t001,
+			R.drawable.t002, R.drawable.t003, R.drawable.t004, R.drawable.t005,
+			R.drawable.t006, R.drawable.t007, R.drawable.t008, R.drawable.t009,
+			R.drawable.t010, R.drawable.t011, R.drawable.t012, R.drawable.t013,
+			R.drawable.t014, R.drawable.t015, R.drawable.t016, R.drawable.t017,
 			R.drawable.t018, R.drawable.t019, R.drawable.t020, R.drawable.t021 };
+
+	public static final Integer[] symbolThumbIDs = { R.drawable.st01,
+			R.drawable.st02 };
 	
-	public static final Integer[] symbolThumbIDs = { R.drawable.st01, R.drawable.st02 };
+	public static final String PIC_TYPE = "PIC_TYPE";
+	public static final String PICTURE = "PICTURE";
+	public static final String THUMBNAIL_ID = "THUMBNAIL_ID";
+	public static final String DIFFICULTY = "DIFFICULTY";
+	public static final String BORDER_WIDTH = "BORDER_WIDTH";
+	public static final String WIDTH = "WIDTH";
+	
 
 	public static final int DEFAULT_PICTURE = 1111;
 	public static final int PHONE_GALLERY = 2222;
@@ -45,38 +53,24 @@ public class ImageUtils {
 	private static Paint up;
 	private static Paint down;
 	private static Paint right;
-	private static Paint left;
+	private static Paint left;	
 
 	static {
 		up = new Paint();
 		up.setStrokeWidth(0);
-		up.setARGB(178, 255, 255, 255);
+		up.setARGB(128, 255, 255, 255);
 
 		left = new Paint();
 		left.setStrokeWidth(0);
-		left.setARGB(114, 255, 255, 255);
+		left.setARGB(76, 255, 255, 255);
 
 		down = new Paint();
 		down.setStrokeWidth(0);
-		down.setARGB(178, 0, 0, 0);
+		down.setARGB(128, 0, 0, 0);
 
 		right = new Paint();
 		right.setStrokeWidth(0);
-		right.setARGB(114, 0, 0, 0);
-	}
-
-	public static int calculateInSampleSize(BitmapFactory.Options options,
-			int reqWidth, int reqHeight) {
-		final int height = options.outHeight;
-		final int width = options.outWidth;
-		int inSampleSize = 1;
-		if (height > reqHeight || width > reqWidth) {
-			final int heightRatio = Math.round((float) height
-					/ (float) reqHeight);
-			final int widthRatio = Math.round((float) width / (float) reqWidth);
-			inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-		}
-		return inSampleSize;
+		right.setARGB(76, 0, 0, 0);
 	}
 
 	public static Bitmap decodeSampledBitmapFromResource(Resources res,
@@ -84,8 +78,9 @@ public class ImageUtils {
 		final BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
 		BitmapFactory.decodeResource(res, resId, options);
-		options.inSampleSize = calculateInSampleSize(options, reqWidth,
-				reqWidth);
+		int bitmapDimension = options.outHeight < options.outWidth ? options.outHeight
+				: options.outWidth;
+		options.inSampleSize = Math.round((float) bitmapDimension / reqWidth);
 		options.inJustDecodeBounds = false;
 		return BitmapFactory.decodeResource(res, resId, options);
 	}
@@ -96,8 +91,7 @@ public class ImageUtils {
 		try {
 			decoder = BitmapRegionDecoder.newInstance(fileName, false);
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new NullPointerException();
+			return null;
 		}
 		int width = decoder.getWidth();
 		int height = decoder.getHeight();
@@ -105,40 +99,23 @@ public class ImageUtils {
 		int x1 = (width - regionWidth) / 2;
 		int y1 = (height - regionWidth) / 2;
 		final Rect rect = new Rect(x1, y1, x1 + regionWidth, y1 + regionWidth);
-
 		final BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inSampleSize = Math.round((float) regionWidth / reqWidth);
 		return decoder.decodeRegion(rect, options);
-	}
-
-	/*
-	 * public static Bitmap decodeSampledBitmapFromFile(String fileName, int
-	 * reqWidth) {
-	 * 
-	 * // First decode with inJustDecodeBounds=true to check dimensions final
-	 * BitmapFactory.Options options = new BitmapFactory.Options();
-	 * options.inJustDecodeBounds = true; BitmapFactory.decodeFile(fileName,
-	 * options);
-	 * 
-	 * // Calculate inSampleSize options.inSampleSize =
-	 * calculateInSampleSize(options, reqWidth, reqHeight);
-	 * 
-	 * // Decode bitmap with inSampleSize set options.inJustDecodeBounds =
-	 * false; return BitmapFactory.decodeFile(fileName, options); }
-	 */
+	}	
 
 	public static Bitmap getBitmapFromIntent(Intent intent, Resources res,
 			int width, int difficulty) {
-		int choice = intent.getIntExtra("CHOICE", -1);
+		int choice = intent.getIntExtra(PIC_TYPE, -1);
 		if (choice == DEFAULT_PICTURE) {
-			int position = intent.getIntExtra("PICTURE", -1);
+			int position = intent.getIntExtra(PICTURE, -1);
 			return ImageUtils.decodeSampledBitmapFromResource(res,
 					mPictureIDs[position], width);
 		} else if (choice == PHONE_GALLERY) {
-			String fileName = intent.getStringExtra("PICTURE");
+			String fileName = intent.getStringExtra(PICTURE);
 			return ImageUtils.decodeSampledBitmapFromFile(fileName, width);
 		} else if (choice == SYMBOL) {
-			int position = intent.getIntExtra("PICTURE", -1);
+			int position = intent.getIntExtra(PICTURE, -1);
 			return ImageUtils.decodeSampledBitmapFromResource(res,
 					mSymbolsIDs[difficulty - 3][position], width);
 		} else {
@@ -155,7 +132,8 @@ public class ImageUtils {
 	}
 
 	public static void drawBorder(Canvas canvas, int x1, int y1, int x2,
-			int y2, int borderWidth) {
+			int y2, int borderWidth) {		
+		
 		for (int k = 0; k < borderWidth; k++) {
 			canvas.drawLine(x1 + k, y1 + k, x2 - 1 - k, y1 + k, up);
 		}

@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_repeat"
+    android:background="@drawable/layer_list_background"
     android:orientation="horizontal"
     tools:context=".MainActivity" >
 
@@ -11,23 +11,29 @@
         android:layout_height="fill_parent"
         android:orientation="vertical" >
 
-        <Button
+        <ImageButton
             android:id="@+id/btnPlay"
             android:layout_width="88dp"
             android:layout_height="0dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:layout_weight="1"
-            android:onClick="onPlay" />
+            android:background="@drawable/selector_button_background"
+            android:onClick="onPlay"
+            android:scaleType="fitXY"
+            android:src="@drawable/selector_play" />
 
-        <Button
+        <ImageButton
             android:id="@+id/btnHighscore"
             android:layout_width="88dp"
             android:layout_height="0dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector_button_background"
             android:onClick="onHighscore"
-            android:layout_weight="1" />
+            android:scaleType="fitXY"
+            android:src="@drawable/selector_highscore" />
 
         <Button
             android:id="@+id/btnChoosePicture"
@@ -35,6 +41,7 @@
             android:layout_height="88dp"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="16dp"
+            android:background="@drawable/selector_choosepic"
             android:onClick="onChoosePicture" />
 
         <LinearLayout
@@ -46,13 +53,13 @@
             <CheckBox
                 android:id="@+id/checkBox3x3"
                 style="@style/CheckBoxStyle"
-                android:button="@drawable/check_box_selector"
+                android:button="@drawable/selector_difficulty_3"
                 android:onClick="onDiffChanged" />
 
             <CheckBox
                 android:id="@+id/checkBox4x4"
                 style="@style/CheckBoxStyle"
-                android:button="@drawable/check_box_selector"
+                android:button="@drawable/selector_difficulty_4"
                 android:onClick="onDiffChanged" />
         </LinearLayout>
 
@@ -65,19 +72,19 @@
                 android:id="@+id/checkBox5x5"
                 style="@style/CheckBoxStyle"
                 android:layout_marginBottom="8dp"
-                android:button="@drawable/check_box_selector"
+                android:button="@drawable/selector_difficulty_5"
                 android:onClick="onDiffChanged" />
 
             <CheckBox
                 android:id="@+id/checkBox6x6"
                 style="@style/CheckBoxStyle"
                 android:layout_marginBottom="8dp"
-                android:button="@drawable/check_box_selector"
+                android:button="@drawable/selector_difficulty_6"
                 android:onClick="onDiffChanged" />
         </LinearLayout>
     </LinearLayout>
 
-    <humaj.michal.util.LandTiledSquareImageView
+    <humaj.michal.util.TiledSquareImageView
         android:id="@+id/iv"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"

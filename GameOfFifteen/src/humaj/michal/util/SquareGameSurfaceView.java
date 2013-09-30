@@ -50,8 +50,10 @@ public class SquareGameSurfaceView extends SurfaceView implements
 	@Override
 	protected void onMeasure(final int widthMeasureSpec,
 			final int heightMeasureSpec) {
-		int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
-		setMeasuredDimension(width, width);
+		int width = getDefaultSize(getSuggestedMinimumWidth(),widthMeasureSpec);
+        int height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
+        width = height < width ? height : width;
+        setMeasuredDimension(width, width);
 	}
 
 	@Override

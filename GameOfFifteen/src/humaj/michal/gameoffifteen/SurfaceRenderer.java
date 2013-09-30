@@ -51,6 +51,8 @@ public class SurfaceRenderer implements Runnable {
 
 	private Rect mTempRect = new Rect();
 
+	private String mMovesBest;
+
 	public SurfaceRenderer(TextView tv, int difficulty, int surfaceWidth,
 			int borderWidth, TimeHandler handler) {
 		mTvMoves = tv;
@@ -168,7 +170,7 @@ public class SurfaceRenderer implements Runnable {
 		if (x == mEmptyTileX && y == mEmptyTileY)
 			return;
 		mMoves++;
-		mTvMoves.setText(mMoves + "");
+		mTvMoves.setText(mMoves + mMovesBest);
 		mTempRect = ImageUtils.getRectForTile(mTempRect, mEmptyTileX,
 				mEmptyTileY, mSurfaceTileWidth);
 		mBgRect = ImageUtils.getRectForTile(mBgRect, x, y, mSurfaceTileWidth);
@@ -203,17 +205,17 @@ public class SurfaceRenderer implements Runnable {
 		this.mTvMoves = mTvMoves;
 	}
 
-	public void setTimeHandler(TimeHandler handler){
+	public void setTimeHandler(TimeHandler handler) {
 		mTimer.setHandler(handler);
 	}
-	
-	public int getMovesCount(){
+
+	public int getMovesCount() {
 		return mMoves;
 	}
-	
-	public String getSolveTime(){
+
+	public String getSolveTime() {
 		return mTimer.getFormattedTime();
-	}	
+	}
 
 	public void shuffleTiles() {
 		Thread t = new Thread() {
@@ -228,7 +230,7 @@ public class SurfaceRenderer implements Runnable {
 				byte previousDirection = -1;
 				int x = -1;
 				int y = -1;
-				int shuffleCount = 3;//(int) Math.pow(mDifficulty, 4) / 7 + 30;
+				int shuffleCount = 3;// (int) Math.pow(mDifficulty, 4) / 7 + 30;
 				Tile.setNumFrames(8 - mDifficulty);
 				for (int i = 0; i < shuffleCount; i++) {
 					Rect to = ImageUtils.getRectForTile(new Rect(),
@@ -350,5 +352,9 @@ public class SurfaceRenderer implements Runnable {
 			}
 		}
 		return true;
+	}
+
+	public void setMovesBest(String a) {
+		mMovesBest = a;
 	}
 }

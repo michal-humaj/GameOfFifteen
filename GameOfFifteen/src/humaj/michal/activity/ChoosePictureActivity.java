@@ -58,13 +58,13 @@ public class ChoosePictureActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_choose_picture);
-		mDifficulty = getIntent().getIntExtra("DIFFICULTY", -1);
+		mDifficulty = getIntent().getIntExtra(ImageUtils.DIFFICULTY, -1);
 		mHandler = new ThumbnailHandler(Looper.getMainLooper());
 		getSupportLoaderManager().initLoader(CURSOR_LOADER, null, this);
 		setupTabs();
 		setThumbWidth();
 		mPlaceHolderBitmap = BitmapFactory.decodeResource(getResources(),
-				R.drawable.placeholder);
+				R.drawable.ic_placeholder);
 		setupCache();
 		setupGridViews();
 	}
@@ -264,7 +264,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 
 		spec = tabs.newTabSpec("tag3");
 		spec.setContent(R.id.gvSymbols);
-		spec.setIndicator(getString(R.string.tabSymbols));
+		spec.setIndicator(getString(R.string.tabSymbols));		
 		tabs.addTab(spec);
 	}
 
@@ -278,10 +278,10 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				Intent intent = new Intent(getApplicationContext(),
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-				intent.putExtra("CHOICE", ImageUtils.DEFAULT_PICTURE);
-				intent.putExtra("THUMBNAIL_ID", ImageUtils.pictureThumbIDs[position]);
-				intent.putExtra("PICTURE", position);
-				intent.putExtra("DIFFICULTY", mDifficulty);
+				intent.putExtra(ImageUtils.PIC_TYPE, ImageUtils.DEFAULT_PICTURE);
+				intent.putExtra(ImageUtils.THUMBNAIL_ID, ImageUtils.pictureThumbIDs[position]);
+				intent.putExtra(ImageUtils.PICTURE, position);
+				intent.putExtra(ImageUtils.DIFFICULTY, mDifficulty);
 				startActivity(intent);
 			}
 		});
@@ -291,9 +291,9 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				Intent intent = new Intent(getApplicationContext(),
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-				intent.putExtra("CHOICE", ImageUtils.PHONE_GALLERY);
-				intent.putExtra("PICTURE", mCursor.getString(mDataColumnIndex));
-				intent.putExtra("DIFFICULTY", mDifficulty);
+				intent.putExtra(ImageUtils.PIC_TYPE, ImageUtils.PHONE_GALLERY);
+				intent.putExtra(ImageUtils.PICTURE, mCursor.getString(mDataColumnIndex));
+				intent.putExtra(ImageUtils.DIFFICULTY, mDifficulty);
 				startActivity(intent);
 			}
 		});		
@@ -303,10 +303,10 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				Intent intent = new Intent(getApplicationContext(),
 						MainActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-				intent.putExtra("CHOICE", ImageUtils.SYMBOL);
-				intent.putExtra("THUMBNAIL_ID", ImageUtils.symbolThumbIDs[position]);
-				intent.putExtra("PICTURE", position);
-				intent.putExtra("DIFFICULTY", mDifficulty);
+				intent.putExtra(ImageUtils.PIC_TYPE, ImageUtils.SYMBOL);
+				intent.putExtra(ImageUtils.THUMBNAIL_ID, ImageUtils.symbolThumbIDs[position]);
+				intent.putExtra(ImageUtils.PICTURE, position);
+				intent.putExtra(ImageUtils.DIFFICULTY, mDifficulty);
 				startActivity(intent);
 			}
 		});

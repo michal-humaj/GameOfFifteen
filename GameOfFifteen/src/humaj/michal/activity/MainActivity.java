@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
 		checkBox6x6 = (CheckBox) findViewById(R.id.checkBox6x6);
 		setPicWidthAndTileBorderWidth();
 		mIntent = getIntent();
-		mDifficulty = mIntent.getIntExtra("DIFFICULTY", -1);
+		mDifficulty = mIntent.getIntExtra(ImageUtils.DIFFICULTY, -1);
 		BitmapHolder bh = BitmapHolder.getInstance();
 		Bitmap bitmap = ImageUtils.getBitmapFromIntent(mIntent, getResources(),
 				mWidth, mDifficulty);
@@ -48,12 +48,12 @@ public class MainActivity extends Activity {
 			Random random = new Random(System.currentTimeMillis());
 			mDifficulty = random.nextInt(4) + 3;
 			int randomIndex = random.nextInt(ImageUtils.mPictureIDs.length);
-			mIntent.putExtra("CHOICE", ImageUtils.DEFAULT_PICTURE);
-			mIntent.putExtra("PICTURE", randomIndex);
-			mIntent.putExtra("DIFFICULTY", mDifficulty);
+			mIntent.putExtra(ImageUtils.PIC_TYPE, ImageUtils.DEFAULT_PICTURE);
+			mIntent.putExtra(ImageUtils.PICTURE, randomIndex);
+			mIntent.putExtra(ImageUtils.DIFFICULTY, mDifficulty);
 			bitmap = ImageUtils.decodeSampledBitmapFromResource(getResources(),
 					ImageUtils.mPictureIDs[randomIndex], mWidth);
-			mIntent.putExtra("THUMBNAIL_ID",
+			mIntent.putExtra(ImageUtils.THUMBNAIL_ID,
 					ImageUtils.pictureThumbIDs[randomIndex]);
 		}
 		bh.setBitmap(bitmap);
@@ -104,24 +104,24 @@ public class MainActivity extends Activity {
 
 	public void onChoosePicture(View v) {
 		Intent intent = new Intent(this, ChoosePictureActivity.class);
-		intent.putExtra("DIFFICULTY", mDifficulty);
+		intent.putExtra(ImageUtils.DIFFICULTY, mDifficulty);
 		intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(intent);
 	}
 
 	public void onPlay(View v) {
 		Intent intent = new Intent(this, GameActivity.class);
-		intent.putExtra("DIFFICULTY", mDifficulty);
-		intent.putExtra("WIDTH", mWidth);
-		intent.putExtra("BORDER_WIDTH", mBorderWidth);
-		int choice = mIntent.getIntExtra("CHOICE", -1);
-		intent.putExtra("CHOICE", choice);
+		intent.putExtra(ImageUtils.DIFFICULTY, mDifficulty);
+		intent.putExtra(ImageUtils.WIDTH, mWidth);
+		intent.putExtra(ImageUtils.BORDER_WIDTH, mBorderWidth);
+		int choice = mIntent.getIntExtra(ImageUtils.PIC_TYPE, -1);
+		intent.putExtra(ImageUtils.PIC_TYPE, choice);
 		if (choice == ImageUtils.PHONE_GALLERY) {
-			intent.putExtra("PICTURE", mIntent.getStringExtra("PICTURE"));
+			intent.putExtra(ImageUtils.PICTURE, mIntent.getStringExtra(ImageUtils.PICTURE));
 		} else {
-			intent.putExtra("THUMBNAIL_ID",
-					mIntent.getIntExtra("THUMBNAIL_ID", -1));
-			Log.d("THUMBNAI", mIntent.getIntExtra("THUMBNAIL_ID", -1) + "");
+			intent.putExtra(ImageUtils.THUMBNAIL_ID,
+					mIntent.getIntExtra(ImageUtils.THUMBNAIL_ID, -1));
+			Log.d("THUMBNAI", mIntent.getIntExtra(ImageUtils.THUMBNAIL_ID, -1) + "");
 		}
 		startActivity(intent);
 	}
@@ -152,9 +152,9 @@ public class MainActivity extends Activity {
 			mIV.setDifficulty(6);
 		}
 
-		int choice = mIntent.getIntExtra("CHOICE", -1);
+		int choice = mIntent.getIntExtra(ImageUtils.PIC_TYPE, -1);
 		if (choice == ImageUtils.SYMBOL) {
-			int position = mIntent.getIntExtra("PICTURE", -1);
+			int position = mIntent.getIntExtra(ImageUtils.PICTURE, -1);
 			BitmapHolder bh = BitmapHolder.getInstance();
 			bh.getBitmap().recycle();
 			Bitmap bitmap = ImageUtils.decodeSampledBitmapFromResource(
@@ -190,19 +190,19 @@ public class MainActivity extends Activity {
 		mWidth = height < width ? height : width;
 		switch (metrics.densityDpi) {
 		case DisplayMetrics.DENSITY_LOW:
-			mBorderWidth = 2;
+			mBorderWidth = 1;
 			break;
 		case DisplayMetrics.DENSITY_MEDIUM:
-			mBorderWidth = 2;
+			mBorderWidth = 1;
 			break;
 		case DisplayMetrics.DENSITY_HIGH:
-			mBorderWidth = 3;
+			mBorderWidth = 2;
 			break;
 		case DisplayMetrics.DENSITY_XHIGH:
-			mBorderWidth = 4;
+			mBorderWidth = 2;
 			break;
 		case DisplayMetrics.DENSITY_XXHIGH:
-			mBorderWidth = 6;
+			mBorderWidth = 3;
 			break;
 		}
 	}

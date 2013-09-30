@@ -11,7 +11,6 @@ import humaj.michal.uilogic.WinDialog;
 import humaj.michal.util.BitmapHolder;
 import humaj.michal.util.ImageUtils;
 import humaj.michal.util.SquareGameSurfaceView;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -22,46 +21,50 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class GameActivity extends FragmentActivity implements OnTouchListener,
-		BackDialogListener, LoaderManager.LoaderCallbacks<Cursor> {
+		BackDialogListener {
 
 	private SquareGameSurfaceView mGameSurfaceView;
 	private SurfaceRenderer mSurfaceRenderer;
+	private ImageButton mBtnPreview;
 	private boolean mDialogPaused = false;
 	private boolean mQuitPressed = false;
 	private int mDifficulty;
+	private String mMovesBest;
+	private String mTimeBest;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
-
 		Intent intent = getIntent();
-		mDifficulty = intent.getIntExtra("DIFFICULTY", -1);
+		mDifficulty = intent.getIntExtra(ImageUtils.DIFFICULTY, -1);
 		Object config = getLastCustomNonConfigurationInstance();
+		getHighscore();
 		if (config != null) {
 			mSurfaceRenderer = (SurfaceRenderer) config;
 			mSurfaceRenderer.setTvMoves((TextView) findViewById(R.id.tvMoves));
 			mSurfaceRenderer.setTimeHandler(new TimeHandler(Looper
-					.getMainLooper(), (TextView) findViewById(R.id.tvTime)));
+					.getMainLooper(), (TextView) findViewById(R.id.tvTime),
+					mTimeBest));
 		} else {
-			int borderWidth = intent.getIntExtra("BORDER_WIDTH", -1);
-			int surfaceWidth = intent.getIntExtra("WIDTH", -1);
+			int borderWidth = intent.getIntExtra(ImageUtils.BORDER_WIDTH, -1);
+			int surfaceWidth = intent.getIntExtra(ImageUtils.WIDTH, -1);
 			mSurfaceRenderer = new SurfaceRenderer(
 					(TextView) findViewById(R.id.tvMoves), mDifficulty,
 					surfaceWidth, borderWidth, new TimeHandler(
 							Looper.getMainLooper(),
-							(TextView) findViewById(R.id.tvTime)));
+							(TextView) findViewById(R.id.tvTime), mTimeBest));
+
+			mSurfaceRenderer.setMovesBest(mMovesBest);
 		}
 		Bitmap bitmap = BitmapHolder.getInstance().getBitmap();
 		mGameSurfaceView = (SquareGameSurfaceView) findViewById(R.id.gameSurfaceView);
@@ -71,8 +74,8 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 		ivPreview.setImageBitmap(bitmap);
 		PreviewListener previewListener = new PreviewListener();
 		ivPreview.setOnTouchListener(previewListener);
-		Button btnPreview = (Button) findViewById(R.id.btnPreview);
-		btnPreview.setOnTouchListener(previewListener);
+		mBtnPreview = (ImageButton) findViewById(R.id.btnPreview);
+		mBtnPreview.setOnTouchListener(previewListener);
 		if (config == null)
 			mSurfaceRenderer.shuffleTiles();
 	}
@@ -80,12 +83,21 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 	class PreviewListener implements OnTouchListener {
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
+			ImageView btn = (ImageView) v;
 			switch (event.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN:
 				mSurfaceRenderer.previewOn();
+				if (btn != mBtnPreview)
+					break;
+				btn.setBackgroundResource(R.drawable.repeat_button_background_pressed);
+				btn.setImageResource(R.drawable.ic_eye_pressed);
 				break;
 			case MotionEvent.ACTION_UP:
 				mSurfaceRenderer.previewOff();
+				if (btn != mBtnPreview)
+					break;
+				btn.setBackgroundResource(R.drawable.repeat_button_background);
+				btn.setImageResource(R.drawable.ic_eye);
 				break;
 			}
 			return true;
@@ -123,10 +135,14 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			WinDialog dialog = new WinDialog();
-			dialog.show(getSupportFragmentManager(), "WinDialogFragment");
-			writeToDatabase(mSurfaceRenderer.getSolveTime(),
+			boolean isNewHighscore = writeToDatabaseIfHighscore(
+					mSurfaceRenderer.getSolveTime(),
 					mSurfaceRenderer.getMovesCount());
+
+			WinDialog dialog = WinDialog.newInstance(
+					mSurfaceRenderer.getSolveTime(),
+					mSurfaceRenderer.getMovesCount(), isNewHighscore);
+			dialog.show(getSupportFragmentManager(), "WinDialogFragment");
 		}
 		return true;
 	}
@@ -160,6 +176,10 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 		mSurfaceRenderer.toggleEmptySeen();
 	}
 
+	public void a(View v) {
+
+	}
+
 	public void onPausePressed(View v) {
 		mDialogPaused = true;
 		mSurfaceRenderer.pause();
@@ -170,23 +190,27 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 	public static class TimeHandler extends Handler {
 
 		TextView tvTime;
+		String timeBest;
 
-		public TimeHandler(Looper mainLooper, TextView tv) {
+		public TimeHandler(Looper mainLooper, TextView tv, String t) {
 			super(mainLooper);
 			tvTime = tv;
+			timeBest = t;
 		}
 
 		@Override
 		public void handleMessage(Message message) {
 			String time = (String) message.obj;
-			tvTime.setText(time);
+			tvTime.setText(time + timeBest);
 		}
 	}
 
-	private void writeToDatabase(String solveTime, int movesCount) {
-		ContentValues values = new ContentValues();
-		values.put("moves_" + mDifficulty, movesCount);
-		values.put("time_" + mDifficulty, solveTime);
+	private boolean writeToDatabaseIfHighscore(String solveTime, int movesCount) {
+		HighscoreDbHelper dbHelper = new HighscoreDbHelper(this);
+		return dbHelper.writeHighscore(getIntent(), solveTime, movesCount);
+	}
+
+	private void getHighscore() {
 		HighscoreDbHelper dbHelper = new HighscoreDbHelper(this);
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		String[] projection = { "moves_" + mDifficulty, "time_" + mDifficulty };
@@ -194,59 +218,28 @@ public class GameActivity extends FragmentActivity implements OnTouchListener,
 		String selection;
 		String[] selectionArgs = new String[1];
 		Intent intent = getIntent();
-		int choice = intent.getIntExtra("CHOICE", -1);
+		int choice = intent.getIntExtra(ImageUtils.PIC_TYPE, -1);
 		if (choice == ImageUtils.PHONE_GALLERY) {
-			String imagePath = intent.getStringExtra("PICTURE");
+			String imagePath = intent.getStringExtra(ImageUtils.PICTURE);
 			selection = HighscoreEntry.COLUMN_NAME_PIC_FILENAME + " LIKE ?";
 			selectionArgs[0] = imagePath;
 		} else {
-			int thumbID = intent.getIntExtra("THUMBNAIL_ID", -1);
+			int thumbID = intent.getIntExtra(ImageUtils.THUMBNAIL_ID, -1);
 			selection = HighscoreEntry.COLUMN_NAME_PIC_RES_ID + " LIKE ?";
 			selectionArgs[0] = String.valueOf(thumbID);
 		}
 		c = db.query(HighscoreEntry.TABLE_NAME, projection, selection,
 				selectionArgs, null, null, null);
-		if (choice == ImageUtils.PHONE_GALLERY) {
-			values.put(HighscoreEntry.COLUMN_NAME_IS_GALLERY_PIC, 1);
-			values.put(HighscoreEntry.COLUMN_NAME_PIC_FILENAME,
-					intent.getStringExtra("PICTURE"));
-		} else {
-			values.put(HighscoreEntry.COLUMN_NAME_IS_GALLERY_PIC, 0);
-			values.put(HighscoreEntry.COLUMN_NAME_PIC_RES_ID,
-					intent.getIntExtra("THUMBNAIL_ID", -1));
-		}
 		if (c.getCount() == 0) {
-			SQLiteDatabase writeableDB = dbHelper.getWritableDatabase();
-			writeableDB.insert(HighscoreEntry.TABLE_NAME, null, values);
-			writeableDB.close();
+			mTimeBest = "";
+			mMovesBest = "";
 		} else {
 			c.moveToFirst();
-			int colIdex = c.getColumnIndex("moves_" + mDifficulty);
-			int highscoreMoves = c.getInt(colIdex);
-			if (movesCount < highscoreMoves || highscoreMoves == 0) {
-				db.update(HighscoreEntry.TABLE_NAME, values, selection,
-						selectionArgs);
-				db.close();
-			}
+			int columnIndex = c.getColumnIndex("moves_" + mDifficulty);
+			mMovesBest = "  Best: " + c.getInt(columnIndex);
+			columnIndex = c.getColumnIndex("time_" + mDifficulty);
+			mTimeBest = "  Best: " + c.getString(columnIndex);
 		}
+		db.close();
 	}
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
 }
