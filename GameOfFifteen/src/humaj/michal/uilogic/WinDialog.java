@@ -12,7 +12,7 @@ public class WinDialog extends DialogFragment {
 	public static final String MOVES_COUNT = "MOVES_COUNT";
 	public static final String SOLVE_TIME = "SOLVE_TIME";
 	public static final String IS_NEW_HIGHSCORE = "IS_NEW_HIGHSCORE";
-	private static final int NUM_PICTURES = 100;
+	private static final int NUM_PICTURES = 104;
 
 	int mMovesCount;
 	String mSolveTime;

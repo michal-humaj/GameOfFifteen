@@ -97,7 +97,7 @@ public class ChoosePictureActivity extends FragmentActivity implements
 			Editor editor = preferences.edit();
 			editor.putInt(PICS_UNLOCKED, 50);
 			editor.commit();
-			mPicsUnlocked = 4;
+			mPicsUnlocked = 50;
 		}
 		mGvPictures.setAdapter(new PictureAdapter());
 	}
@@ -124,7 +124,34 @@ public class ChoosePictureActivity extends FragmentActivity implements
 				R.drawable.t012, R.drawable.t013, R.drawable.t014,
 				R.drawable.t015, R.drawable.t016, R.drawable.t017,
 				R.drawable.t018, R.drawable.t019, R.drawable.t020,
-				R.drawable.t021 };
+				R.drawable.t021, R.drawable.t022, R.drawable.t023,
+				R.drawable.t024, R.drawable.t025, R.drawable.t026,
+				R.drawable.t027, R.drawable.t028, R.drawable.t029,
+				R.drawable.t030, R.drawable.t031, R.drawable.t032,
+				R.drawable.t033, R.drawable.t034, R.drawable.t035,
+				R.drawable.t036, R.drawable.t037, R.drawable.t038,
+				R.drawable.t039, R.drawable.t040, R.drawable.t041,
+				R.drawable.t042, R.drawable.t043, R.drawable.t044,
+				R.drawable.t045, R.drawable.t046, R.drawable.t047,
+				R.drawable.t048, R.drawable.t049, R.drawable.t050,
+				R.drawable.t051, R.drawable.t052, R.drawable.t053,
+				R.drawable.t054, R.drawable.t055, R.drawable.t056,
+				R.drawable.t057, R.drawable.t058, R.drawable.t059,
+				R.drawable.t060, R.drawable.t061, R.drawable.t062,
+				R.drawable.t063, R.drawable.t064, R.drawable.t065,
+				R.drawable.t066, R.drawable.t067, R.drawable.t068,
+				R.drawable.t069, R.drawable.t070, R.drawable.t071,
+				R.drawable.t072, R.drawable.t073, R.drawable.t074,
+				R.drawable.t075, R.drawable.t076, R.drawable.t077,
+				R.drawable.t078, R.drawable.t079, R.drawable.t080,
+				R.drawable.t081, R.drawable.t082, R.drawable.t083,
+				R.drawable.t084, R.drawable.t085, R.drawable.t086,
+				R.drawable.t087, R.drawable.t088, R.drawable.t089,
+				R.drawable.t090, R.drawable.t091, R.drawable.t092,
+				R.drawable.t093, R.drawable.t094, R.drawable.t095,
+				R.drawable.t096, R.drawable.t097, R.drawable.t098,
+				R.drawable.t099, R.drawable.t100, R.drawable.t101,
+				R.drawable.t102, R.drawable.t103, R.drawable.t104 };
 
 		public PictureAdapter() {
 		}
